@@ -1,0 +1,174 @@
+.wrapper {
+  width: 250px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.filter-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 0 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #b4b4b4;
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin: 0;
+  color: #222;
+}
+
+.clear-filters {
+  background: transparent;
+  border: none;
+  color: #e53935;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+
+.clear-filters:hover {
+  color: #a32f2f;
+}
+
+.search {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.search input {
+  width: 200px;
+  padding: 10px 38px 10px 12px;
+  background-color: #f5f5fa;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.search .clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.brands-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brand-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f5f5fa;
+  border: 1px solid #f0f0f0;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.brand-item input {
+  width: 16px;
+  height: 16px;
+}
+
+.brand-name {
+  font-size: 14px;
+  color: #333;
+}
+
+.empty {
+  color: #888;
+  font-size: 14px;
+  padding: 12px 6px;
+}
+
+.price-filter {
+  margin-bottom: 18px;
+}
+
+.f-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.price-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-weight: 450;
+  font-size: 1.5rem;
+}
+
+.price-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f5f5fa;
+  border: 1px solid #f0f0f0;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.price-range {
+  display: flex;
+  gap: 8px;
+}
+
+.price-range input {
+  width: 100px;
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+  background-color: #f5f5fa;
+}
+
+.price-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.apply {
+  width: 100%;
+  background-color: var(--greenPrimary);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #1c7b31;
+  }
+}
+
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.load-more {
+  background: transparent;
+  border: 1px solid #e6e6e6;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}

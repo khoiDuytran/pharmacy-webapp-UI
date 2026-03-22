@@ -1,0 +1,130 @@
+.footer {
+  background-color: #fff;
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #e0e0e0;
+}
+
+// Main Footer
+.main-footer {
+  width: calc(100vw - 9px);
+  display: flex;
+  justify-content: center;
+  background-color: var(--greenPrimary);
+  padding: 50px 0 30px;
+}
+
+.footer-grid {
+  width: var(--default-layout-width);
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr 1.3fr 1.3fr 1fr;
+  gap: 30px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 15px;
+  }
+}
+
+.footer-column {
+  .column-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+  }
+}
+
+.link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    margin-bottom: 12px;
+    align-items: center;
+    color: var(--white);
+    gap: 8px;
+    cursor: pointer;
+
+    p {
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      display: inline-block;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    img {
+      width: 24px;
+      height: 24px;
+      object-fit: cover;
+    }
+  }
+}
+
+.cert-link {
+  display: block;
+  transition: transform 0.2s ease;
+
+  img {
+    width: 140px;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+// Copyright
+.copyright {
+  background-color: #f2f3f5;
+  padding: 20px 0;
+  // border-top: 1px solid #e0e0e0;
+
+  p {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-color);
+    margin: 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .benefits {
+    padding: 30px 0;
+  }
+
+  .main-footer {
+    width: 100vw;
+    flex-direction: column;
+    padding: 40px 0 20px;
+  }
+
+  .bottom-footer {
+    padding: 20px 0;
+  }
+
+  .social-links {
+    justify-content: flex-start;
+  }
+
+  .cert-links {
+    justify-content: flex-start;
+  }
+}

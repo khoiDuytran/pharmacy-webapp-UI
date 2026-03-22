@@ -1,0 +1,157 @@
+.wrapper {
+  max-width: 680px;
+  margin: 60px auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 48px 56px;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.icon-fail {
+  width: 72px;
+  height: 72px;
+  background: #ff4d4f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.2rem;
+  color: #fff;
+  margin: 0 auto 20px;
+}
+
+.title.fail {
+  color: #ff4d4f;
+  margin-bottom: 20px;
+}
+
+/* Icon check */
+.icon-success {
+  width: 72px;
+  height: 72px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.2rem;
+  color: #fff;
+  margin: 0 auto 20px;
+  animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 1.4rem;
+  color: #888;
+  margin-bottom: 32px;
+}
+
+/* Chi tiết đơn */
+.detail {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 1.4rem;
+  border-bottom: 1px solid #efefef;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  span:first-child {
+    color: #888;
+  }
+
+  span:last-child {
+    font-weight: 600;
+    color: #222;
+    text-align: right;
+  }
+}
+
+.row-total {
+  span:first-child {
+    color: #333;
+    font-weight: 700;
+  }
+
+  span:last-child {
+    color: red;
+    font-size: 1.8rem;
+  }
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-home {
+  padding: 10px 24px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1.4rem;
+  color: #555;
+  text-decoration: none;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--greenPrimary);
+    color: var(--greenPrimary);
+  }
+}
+
+.btn-orders {
+  padding: 10px 24px;
+  background: var(--greenPrimary);
+  border-radius: 6px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+/* Error state */
+.error {
+  font-size: 1.5rem;
+  color: #ff4d4f;
+  margin-bottom: 20px;
+}

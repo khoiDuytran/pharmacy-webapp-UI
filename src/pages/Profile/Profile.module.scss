@@ -1,0 +1,37 @@
+.wrapper {
+  width: 100%;
+  background-color: transparent;
+  padding: 20px 0;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+
+  > div:first-child {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+  }
+}
+
+.content {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 400px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+
+    > div:first-child {
+      position: static;
+    }
+  }
+}

@@ -1,0 +1,149 @@
+.wrapper {
+  height: 345px;
+  min-width: 270px;
+  max-width: 270px;
+  background: #fff;
+  border-radius: 16px;
+  border: solid 2px #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    border: solid 2px #066e28;
+  }
+
+  // Mobile: thu nhỏ card trong slide nhưng không full width
+  @media (max-width: 480px) {
+    height: auto;
+    min-width: 200px;
+    max-width: 200px;
+  }
+}
+
+// Khi là column (grid), cho phép card full width
+:global(.column) .wrapper {
+  min-width: unset;
+  max-width: unset;
+  width: 100%;
+  height: auto;
+}
+
+.discount-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #e53935;
+  padding: 3px 8px;
+  border-radius: 6px;
+  z-index: 1;
+}
+
+.context {
+  padding: 12px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.image {
+  width: 100%;
+  height: 190px;
+  object-fit: contain;
+  border-radius: 16px 16px 0 0;
+  background-color: transparent;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (max-width: 480px) {
+    height: 190px;
+  }
+}
+
+.name {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+  height: 44px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  @media (max-width: 480px) {
+    font-size: 1.3rem;
+    height: 34px;
+  }
+}
+
+.manufacture {
+  font-weight: 400;
+
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.price-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  @media (max-width: 480px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+}
+
+.old-price {
+  font-size: 1.3rem;
+  color: #999;
+  text-decoration: line-through;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+}
+
+.price {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e53935;
+
+  @media (max-width: 480px) {
+    font-size: 1.3rem;
+  }
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 0 10px 10px;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+.purchase-count {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--text-color);
+  margin-top: 10px;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    margin-top: 0;
+  }
+}

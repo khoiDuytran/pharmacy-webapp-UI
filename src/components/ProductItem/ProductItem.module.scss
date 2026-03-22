@@ -1,0 +1,71 @@
+/* ProductCard.module.scss */
+.wrapper {
+  width: calc(100% - 24px);
+  flex-shrink: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: #f0f0f0 1px solid;
+  padding: 12px;
+}
+
+.product-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+.product-info {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.product-name {
+  font-size: 1.7rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.price-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  @media (max-width: 480px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.price-discount-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.old-price {
+  font-size: 1.2rem;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.discount-tag {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  background-color: #e53935;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.price {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e53935;
+
+  @media (max-width: 480px) {
+    font-size: 1.3rem;
+  }
+}

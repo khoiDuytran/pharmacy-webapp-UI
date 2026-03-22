@@ -1,0 +1,41 @@
+.logo-home {
+  height: 50px;
+  display: flex;
+  gap: 5px;
+  margin-left: -5px;
+}
+
+.logo-icon {
+  height: 45px;
+  align-self: center;
+
+  img {
+    width: auto;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.logo-content {
+  height: 100%;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2px;
+}
+
+.home-title {
+  //   font-family: "Anta", sans-serif;
+  font-weight: 600;
+  font-size: 2.1rem;
+  font-style: normal;
+  color: #fff;
+  //   margin-bottom: 5px;
+  transform: scaleY(1.3);
+}
+
+.home-subtitle {
+  color: #89c86d;
+  font-size: 1rem;
+  font-weight: 500;
+}
