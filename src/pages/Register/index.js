@@ -1,10 +1,12 @@
-import { useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import classNames from "classnames/bind";
 
 import styles from "../Login/Login.module.scss";
 import { register } from "../../services/authService";
 import Loading from "../../components/Loading";
+import { ToastContext } from "../../contexts/ToastProvider";
+import useDebounce from "../../hooks/useDebounce";
 
 const cx = classNames.bind(styles);
 
@@ -19,8 +21,24 @@ function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState(INITIAL_FORM);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [usernameWarning, setUsernameWarning] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { toast } = useContext(ToastContext);
+
+  const debouncedUsername = useDebounce(form.username, 600);
+
+  useEffect(() => {
+    if (!debouncedUsername) {
+      setUsernameWarning("");
+      return;
+    }
+
+    const hasSpecialChar = /[^a-zA-Z0-9_]/.test(debouncedUsername);
+    setUsernameWarning(
+      hasSpecialChar ? "Tên đăng nhập không được chứa kí hiệu đặc biệt" : "",
+    );
+  }, [debouncedUsername]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,6 +53,9 @@ function Register() {
   const validate = () => {
     if (!form.username.trim() || !form.password.trim()) {
       return "Vui lòng nhập đầy đủ thông tin!";
+    }
+    if (/[^a-zA-Z0-9_]/.test(form.username)) {
+      return "Tên đăng nhập không được chứa kí hiệu đặc biệt!";
     }
     if (form.password !== form.repeatPassword) {
       return "Mật khẩu không trùng khớp!";
@@ -63,6 +84,7 @@ function Register() {
       console.log(response);
 
       if (response.success) {
+        toast.success("Đăng ký thành công!");
         navigate("/login");
       }
     } catch (err) {
@@ -86,12 +108,15 @@ function Register() {
           <form onSubmit={handleRegister} className={cx("form")}>
             <div className={cx("input-group")}>
               <label className={cx("label")}>Tên đăng nhập</label>
+              {usernameWarning && (
+                <p className={cx("field-warning")}>{usernameWarning}</p>
+              )}
               <div className={cx("input-wrapper")}>
                 <input
                   ref={usernameRef}
                   type="text"
                   name="username"
-                  className={cx("input")}
+                  className={cx("input", { "input-error": !!usernameWarning })}
                   placeholder="Nhập tên đăng nhập"
                   value={form.username}
                   onChange={handleChange}

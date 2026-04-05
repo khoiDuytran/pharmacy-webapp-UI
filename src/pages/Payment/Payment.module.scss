@@ -19,6 +19,10 @@
       color: #066e28;
     }
   }
+
+  @media (max-width: 768px) {
+    padding: 0 10px;
+  }
 }
 
 .container {

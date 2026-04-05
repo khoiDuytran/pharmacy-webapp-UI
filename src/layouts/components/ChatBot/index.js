@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import classNames from "classnames/bind";
 import Tippy from "@tippyjs/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -28,6 +28,15 @@ function ChatBot() {
   const bottomRef = useRef(null);
   const inputRef = useRef();
   const sessionId = useRef(null);
+
+  useEffect(() => {
+    const openChat = () => setIsOpen(true);
+    setTimeout(() => inputRef.current?.focus(), 100);
+    window.addEventListener("open-chatbot", openChat);
+    return () => {
+      window.removeEventListener("open-chatbot", openChat);
+    };
+  }, []);
 
   if (!sessionId.current) {
     const id = crypto.randomUUID();

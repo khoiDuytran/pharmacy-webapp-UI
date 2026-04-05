@@ -210,11 +210,10 @@
 
   button {
     padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
+    border-radius: 15px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
 
     &:disabled {
@@ -225,20 +224,24 @@
 }
 
 .btn-submit {
-  background-color: #28a745;
-  color: white;
+  color: #28a745;
+  background-color: white;
+  border: 2px solid #28a745;
 
   &:hover {
     background-color: #218838;
+    color: #fff;
   }
 }
 
 .btn-cancel {
-  background-color: #6c757d;
-  color: white;
+  color: #6c757d;
+  background-color: white;
+  border: 2px solid #6c757d;
 
   &:hover {
     background-color: #5a6268;
+    color: #fff;
   }
 }
 
@@ -377,9 +380,9 @@
 }
 
 .btn-default {
-  background-color: #f0f0f0;
+  background-color: #fff;
   color: #333;
-  border: 1px solid #ddd;
+  border: 1px solid #333;
 
   &:hover:not(:disabled) {
     background-color: #e0e0e0;
@@ -393,21 +396,25 @@
 }
 
 .btn-edit {
-  background-color: #17a2b8;
-  color: white;
+  color: #17a2b8;
+  background-color: white;
+  border: 1px solid #17a2b8;
 
   &:hover {
     background-color: #138496;
+    color: #fff;
   }
 }
 
 .btn-delete {
-  background-color: #dc3545;
-  color: white;
+  color: #dc3545;
+  background-color: white;
+  border: 1px solid #dc3545;
   display: flex;
   justify-content: center;
 
   &:hover {
     background-color: #c82333;
+    color: #fff;
   }
 }

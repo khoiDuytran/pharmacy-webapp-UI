@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { Link } from "react-router-dom";
 import classNames from "classnames/bind";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,6 +19,8 @@ import {
 } from "../../services/cartService";
 import { getProduct } from "../../services/productService";
 import Loading from "../../components/Loading";
+import { ToastContext } from "../../contexts/ToastProvider";
+import { getAllEvent } from "../../services/eventService";
 
 const cx = classNames.bind(styles);
 
@@ -27,18 +29,23 @@ function Cart() {
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isShow, setIsShow] = useState(false);
+  const { toast } = useContext(ToastContext);
   const [loadingItemId, setLoadingItemId] = useState(null); // id đang thực hiện action
 
   const fetchCart = useCallback(async () => {
     try {
-      const [cartRes, productsRes] = await Promise.all([
+      const [cartRes, productsRes, flashSaleRes] = await Promise.all([
         getCart(),
         getProduct(),
+        getAllEvent(),
       ]);
 
       if (!cartRes?.success || !cartRes?.data?.items) {
         return setCartItems([]);
       }
+
+      const flashSaleActiceArray = flashSaleRes.filter((f) => f.active);
+      const flashSaleActice = flashSaleActiceArray[0];
 
       // Chuẩn hóa danh sách sản phẩm về array
       const productList = Array.isArray(productsRes)
@@ -52,13 +59,26 @@ function Cart() {
 
       const itemsWithDetail = entries.map(([productId, quantity]) => {
         const product = productList.find((p) => p.id === productId);
+
+        const isInFlashSale =
+          flashSaleActice?.productIds?.includes(productId) ?? false;
+
+        const effectiveDiscount = product
+          ? isInFlashSale
+            ? Math.max(
+                product.percentDiscount || 0,
+                flashSaleActice.discountPercent,
+              )
+            : product.percentDiscount || 0
+          : 0;
+
         return {
           id: productId,
           quantity,
           name: product?.name || "",
           price: product?.price || 0,
           image: product?.urlImages?.[0] || "",
-          percentDiscount: product?.percentDiscount || 0,
+          percentDiscount: effectiveDiscount,
         };
       });
 
@@ -131,12 +151,14 @@ function Cart() {
       const res = await removeProductFromCart(id);
       if (res?.success) {
         await fetchCart();
+        toast.success("Đã xóa thành công");
         const newSelected = new Set(selectedItems);
         newSelected.delete(id);
         setSelectedItems(newSelected);
         emitCartUpdate();
       }
     } catch (error) {
+      toast.error("Có lỗi xảy ra, xóa sản phẩm thất bại");
       console.error("Lỗi xóa sản phẩm:", error);
     } finally {
       setLoadingItemId(null);
@@ -152,9 +174,11 @@ function Cart() {
         await removeProductFromCart(id);
       }
       await fetchCart();
+      toast.success("Xóa thành công");
       setSelectedItems(new Set());
       emitCartUpdate();
     } catch (error) {
+      toast.error("Có lỗi xảy ra, xóa sản phẩm thất bại");
       console.error("Lỗi xóa nhiều sản phẩm:", error);
     }
   };
@@ -180,16 +204,16 @@ function Cart() {
 
   if (cartItems.length === 0) {
     return (
-      <div className={cx("emptyContainer")}>
+      <div className={cx("empty-container")}>
         <img
           src={emptyCartImage}
           alt="Empty Cart"
-          className={cx("emptyImage")}
+          className={cx("empty-image")}
         />
-        <p className={cx("emptyText")}>Chưa có sản phẩm nào</p>
-        <p className={cx("emptySubtext")}>Hãy khám phá để mua sắm thêm</p>
+        <p className={cx("empty-text")}>Chưa có sản phẩm nào</p>
+        <p className={cx("empty-subtext")}>Hãy khám phá để mua sắm thêm</p>
         <Link to="/">
-          <button className={cx("emptyButton")}>Khám phá ngay</button>
+          <button className={cx("empty-button")}>Khám phá ngay</button>
         </Link>
       </div>
     );
@@ -314,7 +338,7 @@ function Cart() {
         {/* Summary */}
         <div className={cx("summary")}>
           <h3 className={cx("summary-title")}>
-            Giỏ hàng ({selectedItems.size})
+            Chi tiết thanh toán ({selectedItems.size})
           </h3>
           <div className={cx("summary-row-detail", { show: isShow })}>
             <div className={cx("summary-row")}>

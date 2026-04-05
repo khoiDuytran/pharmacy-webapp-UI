@@ -32,7 +32,6 @@ export const getAllShippingAddresses = async () => {
 
 export const addShippingAddress = async (data) => {
   try {
-    // assume POST /shipping-address/create or just /shipping-address
     const response = await post(
       "/shipping-address/create-shipping-address",
       data,

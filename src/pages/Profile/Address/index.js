@@ -1,138 +1,153 @@
-import { useState } from "react";
-import styles from "./Address.module.scss";
+import { useContext, useEffect, useState } from "react";
 import classNames from "classnames/bind";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { useEffect } from "react";
+
+import styles from "./Address.module.scss";
 import {
   getAllShippingAddresses,
   addShippingAddress,
+  updateShippingAddress,
   deleteShippingAddress,
 } from "../../../services/userService";
 import Loading from "../../../components/Loading";
+import { ToastContext } from "../../../contexts/ToastProvider";
 
 const cx = classNames.bind(styles);
 
+const CITIES = [
+  "Hà Nội",
+  "TP. Hồ Chí Minh",
+  "Hải Phòng",
+  "Đà Nẵng",
+  "Cần Thơ",
+  "Hà Giang",
+  "Ninh Bình",
+  "Thái Bình",
+  "Nam Định",
+  "Vĩnh Phúc",
+];
+
+const DISTRICTS = [
+  "Quận Hai Bà Trưng",
+  "Quận Ba Đình",
+  "Quận Hoàn Kiếm",
+  "Quận Cầu Giấy",
+  "Quận Thanh Xuân",
+  "Quận Đống Đa",
+  "Quận Nam Từ Liêm",
+  "Quận Bắc Từ Liêm",
+  "Quận Hà Đông",
+  "Quận Hoàng Mai",
+];
+
+const EMPTY_FORM = {
+  recipientName: "",
+  numPhone: "",
+  addressLine: "",
+  district: "",
+  city: "",
+  isDefault: false,
+};
+
 function Address() {
+  const { toast } = useContext(ToastContext);
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newAddress, setNewAddress] = useState({
-    recipientName: "",
-    numPhone: "",
-    addressLine: "",
-    district: "",
-    city: "",
-    isDefault: false,
-  });
+  const [formMode, setFormMode] = useState(null); // null | "add" | "edit"
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
-  // Mock data for dropdowns
-  const cities = [
-    "Hà Nội",
-    "TP. Hồ Chí Minh",
-    "Hải Phòng",
-    "Đà Nẵng",
-    "Cần Thơ",
-    "Hà Giang",
-    "Ninh Bình",
-    "Thái Bình",
-    "Nam Định",
-    "Vĩnh Phúc",
-  ];
-  const districts = [
-    "Quân Hai Ba Trung",
-    "Quân Ba Đình",
-    "Quân Hoàn Kiếm",
-    "Quân Cầu Giấy",
-    "Quận Thanh Xuân",
-    "Quận Đống Đa",
-    "Quận Nam Từ Liêm",
-    "Quận Bắc Từ Liêm",
-    "Quận Hà Đông",
-    "Quận Hoàng Mai",
-  ];
-
-  // fetch existing addresses from server
   useEffect(() => {
-    const load = async () => {
+    const fetchShippingAddress = async () => {
       try {
         const res = await getAllShippingAddresses();
-        console.log("Addresses loaded:", res);
+        console.log(res);
 
         setAddresses(res || []);
-      } catch (e) {
-        console.error("Failed to load addresses", e);
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
-    load();
+
+    fetchShippingAddress();
   }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setNewAddress((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleAddAddress = async (e) => {
-    e.preventDefault();
-    if (
-      newAddress.recipientName &&
-      newAddress.numPhone &&
-      newAddress.addressLine &&
-      newAddress.district &&
-      newAddress.city
-    ) {
-      try {
-        const res = await addShippingAddress(newAddress);
-        const added = res?.data || res || { ...newAddress, id: Date.now() };
-        setAddresses([...addresses, added]);
-      } catch (err) {
-        console.error("Error adding address", err);
-      }
+  const openAddForm = () => {
+    setFormData(EMPTY_FORM);
+    setEditingId(null);
+    setFormMode("add");
+  };
 
-      setNewAddress({
-        recipientName: "",
-        numPhone: "",
-        city: "",
-        district: "",
-        addressLine: "",
-        isDefault: false,
-      });
-      setIsAddingNew(false);
-    }
+  const openEditForm = (addr) => {
+    setFormData({
+      recipientName: addr.recipientName || "",
+      numPhone: addr.numPhone || "",
+      addressLine: addr.addressLine || "",
+      district: addr.district || "",
+      city: addr.city || "",
+      isDefault: addr.isDefault || false,
+    });
+    setEditingId(addr.id);
+    setFormMode("edit");
   };
 
   const handleCancel = () => {
-    setNewAddress({
-      recipientName: "",
-      numPhone: "",
-      city: "",
-      district: "",
-      addressLine: "",
-      isDefault: false,
-    });
-    setIsAddingNew(false);
+    setFormMode(null);
+    setEditingId(null);
+    setFormData(EMPTY_FORM);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { recipientName, numPhone, addressLine, district, city } = formData;
+    if (!recipientName || !numPhone || !addressLine || !district || !city)
+      return;
+
+    try {
+      if (formMode === "add") {
+        const res = await addShippingAddress(formData);
+        const added = res?.data || res || { ...formData, id: Date.now() };
+        setAddresses((prev) => [...prev, added]);
+        toast.success("Thêm địa chỉ mới thành công!");
+      } else {
+        const res = await updateShippingAddress(editingId, formData);
+        const updated = res?.data || res || { ...formData, id: editingId };
+        setAddresses((prev) =>
+          prev.map((addr) => (addr.id === editingId ? updated : addr)),
+        );
+        toast.success("Cập nhật địa chỉ thành công!");
+      }
+      handleCancel();
+    } catch (err) {
+      console.error("Error saving address", err);
+      toast.error("Có lỗi xảy ra, vui lòng thử lại.");
+    }
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteShippingAddress(id);
-      setAddresses(addresses.filter((addr) => addr.id !== id));
+      setAddresses((prev) => prev.filter((addr) => addr.id !== id));
+      toast.success("Đã xóa địa chỉ thành công!");
     } catch (err) {
       console.error("Failed to delete address", err);
     }
   };
 
   const handleSetDefault = (id) => {
-    setAddresses(
-      addresses.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === id,
-      })),
+    setAddresses((prev) =>
+      prev.map((addr) => ({ ...addr, isDefault: addr.id === id })),
     );
   };
 
@@ -140,35 +155,37 @@ function Address() {
     <div className={cx("wrapper")}>
       <div className={cx("header")}>
         <h2>Quản lý sổ địa chỉ</h2>
-        <button className={cx("btn-add")} onClick={() => setIsAddingNew(true)}>
+        <button className={cx("btn-add")} onClick={openAddForm}>
           <FontAwesomeIcon icon={faPlus} />
           Thêm địa chỉ mới
         </button>
       </div>
 
-      {isAddingNew && (
+      {/* Form thêm / sửa */}
+      {formMode && (
         <div className={cx("form-container")}>
-          <h3>Thêm địa chỉ mới</h3>
-          <form onSubmit={handleAddAddress}>
+          <h3>
+            {formMode === "add" ? "Thêm địa chỉ mới" : "Chỉnh sửa địa chỉ"}
+          </h3>
+          <form onSubmit={handleSubmit}>
             <div className={cx("form-row")}>
               <div className={cx("form-group")}>
                 <label>Tên người nhận</label>
                 <input
                   type="text"
                   name="recipientName"
-                  value={newAddress.recipientName}
+                  value={formData.recipientName}
                   onChange={handleInputChange}
                   placeholder="Nhập tên người nhận"
                   required
                 />
               </div>
-
               <div className={cx("form-group")}>
                 <label>Số điện thoại</label>
                 <input
                   type="tel"
                   name="numPhone"
-                  value={newAddress.numPhone}
+                  value={formData.numPhone}
                   onChange={handleInputChange}
                   placeholder="Nhập số điện thoại"
                   required
@@ -180,14 +197,14 @@ function Address() {
               <label>Chọn Tỉnh/Thành phố</label>
               <select
                 name="city"
-                value={newAddress.city}
+                value={formData.city}
                 onChange={handleInputChange}
                 required
               >
                 <option value="">-- Chọn Tỉnh/Thành phố --</option>
-                {cities.map((prov) => (
-                  <option key={prov} value={prov}>
-                    {prov}
+                {CITIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
                   </option>
                 ))}
               </select>
@@ -197,14 +214,14 @@ function Address() {
               <label>Chọn Quận/Huyện</label>
               <select
                 name="district"
-                value={newAddress.district}
+                value={formData.district}
                 onChange={handleInputChange}
                 required
               >
                 <option value="">-- Chọn Quận/Huyện --</option>
-                {districts.map((dist) => (
-                  <option key={dist} value={dist}>
-                    {dist}
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
                   </option>
                 ))}
               </select>
@@ -215,7 +232,7 @@ function Address() {
               <input
                 type="text"
                 name="addressLine"
-                value={newAddress.addressLine}
+                value={formData.addressLine}
                 onChange={handleInputChange}
                 placeholder="Nhập địa chỉ cụ thể"
                 required
@@ -227,7 +244,7 @@ function Address() {
                 <input
                   type="checkbox"
                   name="isDefault"
-                  checked={newAddress.isDefault}
+                  checked={formData.isDefault}
                   onChange={handleInputChange}
                 />
                 <span className={cx("toggle-bg")}></span>
@@ -237,7 +254,7 @@ function Address() {
 
             <div className={cx("form-actions")}>
               <button type="submit" className={cx("btn-submit")}>
-                Lưu địa chỉ
+                {formMode === "add" ? "Lưu địa chỉ" : "Cập nhật"}
               </button>
               <button
                 type="button"
@@ -251,7 +268,8 @@ function Address() {
         </div>
       )}
 
-      <div className={cx("addresses-list", { hidden: isAddingNew })}>
+      {/* Danh sách địa chỉ */}
+      <div className={cx("addresses-list", { hidden: !!formMode })}>
         {loading ? (
           <Loading />
         ) : addresses.length === 0 ? (
@@ -280,9 +298,11 @@ function Address() {
                 >
                   Mặc định
                 </button>
-                <button className={cx("btn-edit")}>
-                  <FontAwesomeIcon icon={faEdit} />
-                  Sửa
+                <button
+                  className={cx("btn-edit")}
+                  onClick={() => openEditForm(addr)}
+                >
+                  <FontAwesomeIcon icon={faEdit} /> Sửa
                 </button>
                 <button
                   className={cx("btn-delete")}

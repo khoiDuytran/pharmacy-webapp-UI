@@ -9,6 +9,7 @@ function CardContent({
   slide = false,
   column = false,
   topseller = false,
+  flashsale = false,
   title,
   products = [],
 }) {
@@ -19,10 +20,11 @@ function CardContent({
     slide,
     column,
     topseller,
+    flashsale,
   });
 
   useEffect(() => {
-    if (!slide) return;
+    if (!slide && !flashsale) return;
 
     const list = listRef.current;
     if (!list) return;
@@ -49,7 +51,7 @@ function CardContent({
     return () => {
       list.removeEventListener("wheel", handleWheel);
     };
-  }, [slide]);
+  }, [slide, flashsale]);
 
   // Sắp xếp sản phẩm dựa vào filter
   const sortedProducts = useMemo(() => {

@@ -1,6 +1,6 @@
 import classNames from "classnames/bind";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
@@ -10,6 +10,10 @@ import Button from "../../components/Button";
 import CardContent from "../../layouts/components/CardContent";
 import { addProductToCart } from "../../services/cartService";
 import Loading from "../../components/Loading";
+import { ToastContext } from "../../contexts/ToastProvider";
+import CountDown from "../../components/CountDown";
+import hotIcon from "../../assets/images/hot-sale-icon.png";
+import { getAllEvent } from "../../services/eventService";
 
 const cx = classNames.bind(styles);
 
@@ -27,35 +31,58 @@ function ProductDetail() {
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountedPrice, setDiscountedPrice] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { toast } = useContext(ToastContext);
+  const [isFSItem, setIsFSItem] = useState(false);
+  const [endDate, setEndDate] = useState();
 
   useEffect(() => {
-    const fetchProductDetail = async () => {
+    const load = async () => {
       try {
-        const response = await getProductById(id);
-        console.log(response);
+        const [productData, falshSaleRes] = await Promise.all([
+          getProductById(id),
+          getAllEvent(),
+        ]);
 
-        if (!response) return;
-        setProductDetail(response);
+        const flashSaleActiceArray = falshSaleRes.filter((f) => f.active);
+
+        const flashSaleActice = flashSaleActiceArray[0];
+
+        const productId = productData.id;
+
+        const isInFlashSale =
+          flashSaleActice?.productIds?.includes(productId) ?? false;
+
+        const effectiveDiscount = isInFlashSale
+          ? Math.max(
+              productData.percentDiscount || 0,
+              flashSaleActice.discountPercent,
+            )
+          : productData.percentDiscount || 0;
+
+        setProductDetail(productData);
+        setIsFSItem(isInFlashSale);
+        setEndDate(flashSaleActice.endDate);
         setSelectedImageIndex(0);
         setPurchaseQuantity(1);
-        response?.percentDiscount > 0
-          ? setHasDiscount(true)
-          : setHasDiscount(false);
-        response?.percentDiscount > 0
-          ? setDiscountedPrice(
-              response?.price * (1 - response?.percentDiscount / 100),
-            )
-          : setDiscountedPrice(response?.price);
-        setStock(response?.quantity - response?.purchaseCount);
-        response?.quantity - response?.purchaseCount > 0
-          ? setStatus(true)
-          : setStatus(false);
+
+        const hasDisc = effectiveDiscount > 0;
+        setHasDiscount(hasDisc);
+        setDiscountedPrice(
+          hasDisc
+            ? productData.price * (1 - effectiveDiscount / 100)
+            : productData.price,
+        );
+        // Lưu lại để dùng khi mua ngay
+        productData._effectiveDiscount = effectiveDiscount;
+
+        setStock(productData.quantity - productData.purchaseCount);
+        setStatus(productData.quantity - productData.purchaseCount > 0);
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchProductDetail();
+    load();
   }, [id]);
 
   useEffect(() => {
@@ -145,9 +172,11 @@ function ProductDetail() {
         await addProductToCart(id);
       }
       console.log("Đã thêm sản phẩm vào giỏ", id);
+      toast.success("Đã thêm vào giỏ hàng");
       emitCartUpdate();
     } catch (error) {
       console.warn("Thêm vào giỏ thất bại:", error.message);
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
     }
   };
 
@@ -156,7 +185,8 @@ function ProductDetail() {
       id: productDetail.id,
       name: productDetail.name,
       price: productDetail.price,
-      percentDiscount: productDetail.percentDiscount || 0,
+      percentDiscount:
+        productDetail._effectiveDiscount ?? productDetail.percentDiscount ?? 0,
       image: productDetail.urlImages?.[0] || "",
       quantity: purchaseQuantity,
     };
@@ -235,6 +265,20 @@ function ProductDetail() {
                 Số lượng có sẵn: {stock}
               </p>
               <div className={cx("price-group")}>
+                {isFSItem && (
+                  <div className={cx("hot-sale")}>
+                    <div className={cx("hot-sale-left")}>
+                      <div className={cx("hot-sale-title")}>FLASH SALE</div>
+                      <div className={cx("hot-sale-icon")}>
+                        <img src={hotIcon} alt="hot-sale" />
+                      </div>
+                    </div>
+                    <div className={cx("hot-sale-right")}>
+                      <div className={cx("hot-sale-title")}>Kết thúc sau:</div>
+                      <CountDown small endDate={endDate} />
+                    </div>
+                  </div>
+                )}
                 <div className={cx("price-discount-tag")}>
                   <div
                     className={cx("old-price")}
@@ -244,7 +288,10 @@ function ProductDetail() {
                   </div>
                   {hasDiscount && (
                     <div className={cx("discount-tag")}>
-                      -{productDetail?.percentDiscount}%
+                      -
+                      {productDetail._effectiveDiscount ??
+                        productDetail.percentDiscount}
+                      %
                     </div>
                   )}
                 </div>

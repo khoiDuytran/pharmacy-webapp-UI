@@ -99,7 +99,7 @@ function Footer() {
         {/* Copyright */}
         <div className={cx("copyright")}>
           <div className={cx("container")}>
-            <p>© 2024 Nhà Thuốc Trực Tuyến. All rights reserved.</p>
+            <p>© 2026 Nhà Thuốc Trực Tuyến. All rights reserved.</p>
           </div>
         </div>
       </div>

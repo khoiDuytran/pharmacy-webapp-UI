@@ -135,6 +135,40 @@
   gap: 2px;
 }
 
+.hot-sale {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f58220;
+  background: linear-gradient(90deg, #f58220 0%, #ffc364 100%);
+  padding: 7px;
+  color: #fff;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.hot-sale-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.hot-sale-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  img {
+    height: 30px;
+    width: 30px;
+    object-fit: cover;
+  }
+}
+
+.hot-sale-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .price-discount-tag {
   display: flex;
   align-items: center;
@@ -380,6 +414,16 @@
 
   .product-price {
     font-size: 1.6rem;
+  }
+
+  .hot-sale-title {
+    font-size: 1.3rem;
+  }
+
+  .hot-sale img {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
   }
 
   .product-manufacturer,

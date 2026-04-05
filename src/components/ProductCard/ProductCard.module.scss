@@ -3,14 +3,20 @@
   min-width: 270px;
   max-width: 270px;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 10px;
   border: solid 2px #f0f0f0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   position: relative;
 
   &:hover {
-    border: solid 2px #066e28;
+    // border: solid 2px #066e28;
+    // box-shadow: 0 2px 8px rgb(0, 0, 0, 0.5);
+
+    .overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 
   // Mobile: thu nhỏ card trong slide nhưng không full width
@@ -31,14 +37,14 @@
 
 .discount-tag {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 5px;
+  right: 0;
   font-size: 1.3rem;
   font-weight: 600;
   color: #fff;
   background-color: #e53935;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 3px 0 0 3px;
   z-index: 1;
 }
 
@@ -58,6 +64,7 @@
   background-color: transparent;
   margin-left: auto;
   margin-right: auto;
+  box-sizing: border-box;
 
   @media (max-width: 480px) {
     height: 190px;
@@ -145,5 +152,44 @@
   @media (max-width: 480px) {
     font-size: 1rem;
     margin-top: 0;
+  }
+}
+
+/* ===== Hover overlay ===== */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 5;
+  border-radius: 8px;
+
+  // Ẩn trên mobile (không có hover)
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.overlay-btn {
+  padding: 10px 24px;
+  background: #fff;
+  color: #066e28;
+  border: 2px solid #066e28;
+  border-radius: 20px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: #066e28;
+    color: #fff;
   }
 }

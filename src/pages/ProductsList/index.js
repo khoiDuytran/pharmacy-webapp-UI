@@ -17,6 +17,7 @@ import ProductCard from "../../components/ProductCard";
 import SidebarProducts from "../../layouts/components/Sidebar/SidebarProducts";
 import { getProduct } from "../../services/productService";
 import Loading from "../../components/Loading";
+// import { ToastContext } from "../../contexts/ToastProvider";
 
 const cx = classNames.bind(styles);
 
@@ -28,6 +29,7 @@ function ProductsList() {
   const [priceFilter, setPriceFilter] = useState(null);
   const [categoryTitle, setCategoryTitle] = useState("");
   const [showFilter, setShowFilter] = useState(false);
+  // const { toast } = useContext(ToastContext);
   const itemsPerPage = 9;
 
   const location = useLocation();
@@ -194,7 +196,7 @@ function ProductsList() {
           <div className={cx("content-header")}>
             <h1 className={cx("title")}>
               {categoryTitle
-                ? `Danh mục: ${categoryTitle}`
+                ? `Danh sách sản phẩm: ${categoryTitle}`
                 : "Danh sách sản phẩm"}
             </h1>
 

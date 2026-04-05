@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import classNames from "classnames/bind";
 
 import styles from "./Account.module.scss";
@@ -6,12 +6,31 @@ import {
   getUserProfile,
   updateUserProfile,
 } from "../../../services/userService";
+import { ToastContext } from "../../../contexts/ToastProvider";
+import useDebounce from "../../../hooks/useDebounce";
+
 const cx = classNames.bind(styles);
+
+const VALIDATORS = {
+  name: {
+    regex: /[^a-zA-ZÀ-ỹ\s]/, // chỉ cho chữ cái + khoảng trắng
+    message: "Họ tên không được chứa số hoặc kí tự đặc biệt",
+  },
+  phoneNumber: {
+    regex: /^(?!\d{10}$).*/, // phải đúng 10 chữ số
+    message: "Số điện thoại phải có đúng 10 chữ số",
+  },
+  email: {
+    regex: /^(?![a-zA-Z0-9._%+]+@[a-zA-Z0-9.]+\.[a-zA-Z]{2,}$).+/,
+    message: "Email không hợp lệ",
+  },
+};
 
 function Account() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { toast } = useContext(ToastContext);
 
   const [displayData, setDisplayData] = useState({
     name: "",
@@ -22,6 +41,16 @@ function Account() {
   });
 
   const [formData, setFormData] = useState(displayData);
+
+  const [fieldWarnings, setFieldWarnings] = useState({
+    name: "",
+    phoneNumber: "",
+    email: "",
+  });
+
+  const debouncedName = useDebounce(formData.name, 600);
+  const debouncedPhone = useDebounce(formData.phoneNumber, 600);
+  const debouncedEmail = useDebounce(formData.email, 600);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -46,6 +75,47 @@ function Account() {
 
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (!debouncedName) {
+      setFieldWarnings((p) => ({ ...p, name: "" }));
+      return;
+    }
+    setFieldWarnings((p) => ({
+      ...p,
+      name: VALIDATORS.name.regex.test(debouncedName)
+        ? VALIDATORS.name.message
+        : "",
+    }));
+  }, [debouncedName]);
+
+  useEffect(() => {
+    if (!debouncedPhone) {
+      setFieldWarnings((p) => ({ ...p, phoneNumber: "" }));
+      return;
+    }
+    setFieldWarnings((p) => ({
+      ...p,
+      phoneNumber: VALIDATORS.phoneNumber.regex.test(debouncedPhone)
+        ? VALIDATORS.phoneNumber.message
+        : "",
+    }));
+  }, [debouncedPhone]);
+
+  useEffect(() => {
+    if (!debouncedEmail) {
+      setFieldWarnings((p) => ({ ...p, email: "" }));
+      return;
+    }
+    setFieldWarnings((p) => ({
+      ...p,
+      email: VALIDATORS.email.regex.test(debouncedEmail)
+        ? VALIDATORS.email.message
+        : "",
+    }));
+  }, [debouncedEmail]);
+
+  const hasWarnings = Object.values(fieldWarnings).some((w) => !!w);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -78,6 +148,7 @@ function Account() {
       }
 
       console.log("Cập nhật thành công", response);
+      toast.success("Cập nhật thông tin người dùng thành công!");
 
       const userData = {
         name: formData.name,
@@ -91,6 +162,7 @@ function Account() {
       setIsEditing(false);
     } catch (err) {
       setError("Cập nhật thất bại. Vui lòng thử lại.");
+      toast.error("Cập nhật thất bại!");
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -164,31 +236,43 @@ function Account() {
         <form onSubmit={handleSubmit}>
           <div className={cx("form-group")}>
             <label>Họ và tên</label>
+            {fieldWarnings.name && (
+              <p className={cx("field-warning")}>{fieldWarnings.name}</p>
+            )}
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
+              className={cx({ "input-error": !!fieldWarnings.name })}
             />
           </div>
 
           <div className={cx("form-group")}>
             <label>Email</label>
+            {fieldWarnings.email && (
+              <p className={cx("field-warning")}>{fieldWarnings.email}</p>
+            )}
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
+              className={cx({ "input-error": !!fieldWarnings.email })}
             />
           </div>
 
           <div className={cx("form-group")}>
             <label>Số điện thoại</label>
+            {fieldWarnings.phoneNumber && (
+              <p className={cx("field-warning")}>{fieldWarnings.phoneNumber}</p>
+            )}
             <input
               type="tel"
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
+              className={cx({ "input-error": !!fieldWarnings.phoneNumber })}
             />
           </div>
 
@@ -235,7 +319,7 @@ function Account() {
             <button
               type="submit"
               className={cx("btn-submit")}
-              disabled={isLoading}
+              disabled={isLoading || hasWarnings}
             >
               {isLoading ? "Đang cập nhật..." : "Cập nhật thông tin"}
             </button>

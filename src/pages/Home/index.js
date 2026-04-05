@@ -1,35 +1,21 @@
 import { useEffect, useState } from "react";
+import classNames from "classnames/bind";
 
 import CardContent from "../../layouts/components/CardContent";
 import styles from "./Home.module.scss";
-import classNames from "classnames/bind";
-import Button from "../../components/Button";
 import BlogContent from "../../layouts/components/BlogContent";
 import { getProduct } from "../../services/productService";
-import { Link } from "react-router-dom";
 import Loading from "../../components/Loading";
-import webBanner from "../../assets/images/web-banner.jpg";
+import webBanner from "../../assets/images/web-banner.png";
+import webBanner2 from "../../assets/images/web-banner2.png";
 import mobileBanner from "../../assets/images/mobile-banner.png";
+import HeroBanner from "../../layouts/components/HeroBanner";
+import Event from "../../layouts/components/Event";
+import TagsContent from "../../layouts/components/TagsContent";
 
 const cx = classNames.bind(styles);
 
-// const images = [
-//   {
-//     image:
-//       "https://bimufa.com/wp-content/uploads/2024/09/vien-dam-davichat-768x512.jpg",
-//   },
-//   {
-//     image:
-//       "https://bimufa.com/wp-content/uploads/2024/08/sua-tam-climvate-formula-1-0-768x512.jpg",
-//   },
-//   {
-//     image:
-//       "https://bimufa.com/wp-content/uploads/2024/05/anh-bia-Nuoc-rua-mat-eyefresh-bi-quyet-giu-doi-mat-sang-khoe-dep-anh-bia.jpg",
-//   },
-//   {
-//     image: "https://bimufa.com/wp-content/uploads/2020/12/san_pham_manplus.jpg",
-//   },
-// ];
+const HeroImages = [webBanner, webBanner2];
 
 const bannerImages = [
   {
@@ -120,19 +106,19 @@ function Home() {
     ? products.sort((p, q) => q.percentDiscount - p.percentDiscount).slice(0, 8)
     : [];
   const otherProduct = products
-    ? products.filter((p) => p.purchaseCount < 11)
+    ? products.filter((p) => p.purchaseCount < 11).slice(8)
     : [];
 
   return (
     <div className={cx("wrapper")}>
       <div className={cx("hero")}>
         <div className={cx("hero-section")}>
-          <img
-            src={isMobile ? mobileBanner : webBanner}
-            alt="hero"
-            className={cx("hero-image")}
-          />
-          {!isMobile && (
+          {isMobile ? (
+            <img src={mobileBanner} alt="hero" className={cx("hero-image")} />
+          ) : (
+            <HeroBanner images={HeroImages} />
+          )}
+          {/* {!isMobile && (
             <div className={cx("hero-content")}>
               <h3 className={cx("hero-subtitle")}>
                 Hệ thống
@@ -145,15 +131,19 @@ function Home() {
                 </Button>
               </Link>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
       <div className={cx("container")}>
         <div className={cx("content")}>
-          {/* <div className={cx("slider")}>
-            <BannerSlider images={images} />
-          </div> */}
+          <section className={cx("section")}>
+            <TagsContent />
+          </section>
+
+          <section className={cx("section")}>
+            {loading ? <Loading /> : <Event products={products} />}
+          </section>
 
           <section className={cx("section")}>
             {loading ? (

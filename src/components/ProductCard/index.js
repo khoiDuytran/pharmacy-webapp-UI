@@ -14,8 +14,12 @@ function ProductCard({ data }) {
   return (
     <div className={cx("wrapper")}>
       {hasDiscount && (
-        <div className={cx("discount-tag")}>-{data.percentDiscount}%</div>
+        <div className={cx("discount-tag")}>Giảm {data.percentDiscount}%</div>
       )}
+
+      <Link to={`/product/${data.id}`} className={cx("overlay")}>
+        <span className={cx("overlay-btn")}>Xem chi tiết</span>
+      </Link>
 
       <Link to={`/product/${data.id}`} className={cx("link")}>
         <img className={cx("image")} alt="Hinh mo ta" src={data.urlImages[0]} />
@@ -42,7 +46,7 @@ function ProductCard({ data }) {
             {discountedPrice.toLocaleString("vi-VN")} ₫
           </div>
         </div>
-        <div className={cx("purchase-count")}>Đã bán {data.purchaseCount}</div>
+        {/* <div className={cx("purchase-count")}>Đã bán {data.purchaseCount}</div> */}
       </div>
     </div>
   );

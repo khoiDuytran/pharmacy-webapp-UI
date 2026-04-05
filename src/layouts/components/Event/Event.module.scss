@@ -1,0 +1,142 @@
+.wrapper {
+  width: 100%;
+  background: transparent;
+}
+
+/* ===== Logo ===== */
+.logo {
+  width: 100%;
+  margin-bottom: -7px;
+  position: relative;
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+}
+
+.header-right {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  top: 40%;
+  left: 40%;
+  transform: translate(-100%, -50%);
+
+  @media (max-width: 768px) {
+    left: 45%;
+  }
+}
+
+.end-label {
+  font-size: 2.5rem;
+  color: #fff;
+  font-weight: 600;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+}
+
+.container {
+  width: 100%;
+  background: #007b25;
+  //   border-radius: 12px;
+  padding: 16px;
+  padding-bottom: 0;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 32px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ===== Header ===== */
+.header {
+  display: none;
+  // display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: -10px;
+}
+
+/* ===== Tabs (tên sự kiện) ===== */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 10px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #fff;
+    color: #fff;
+  }
+
+  &.active {
+    background: #fff;
+    color: #ff2f2f;
+    border-color: #fff;
+  }
+}
+
+// .see-all {
+//   font-size: 1.3rem;
+//   color: #fff;
+//   text-decoration: none;
+//   border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+//   white-space: nowrap;
+//   transition: opacity 0.2s;
+
+//   &:hover {
+//     opacity: 0.8;
+//   }
+// }
+
+/* ===== Products scroll ===== */
+.products-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.product-wrapper {
+  flex-shrink: 0;
+  width: 200px;
+
+  @media (max-width: 480px) {
+    width: 160px;
+  }
+}
+
+.empty {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.4rem;
+  padding: 20px 0;
+}

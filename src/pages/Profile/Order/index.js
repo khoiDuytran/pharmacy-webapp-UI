@@ -257,7 +257,7 @@ function Order() {
                       />
                       <div className={cx("product-info")}>
                         <span className={cx("product-name")}>{item.name}</span>
-                        <div className={cx("product-price-group")}>
+                        {/* <div className={cx("product-price-group")}>
                           {item.percentDiscount > 0 && (
                             <span className={cx("old-price")}>
                               {item.price.toLocaleString("vi-VN")}₫
@@ -275,7 +275,7 @@ function Order() {
                               -{item.percentDiscount}%
                             </span>
                           )}
-                        </div>
+                        </div> */}
                         <span className={cx("product-qty")}>
                           Số lượng: {item.quantity}
                         </span>

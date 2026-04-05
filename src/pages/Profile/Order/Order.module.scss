@@ -88,8 +88,9 @@
 
 .btn-shop {
   padding: 10px 28px;
-  background: #066e28;
-  color: #fff;
+  color: #066e28;
+  background-color: #fff;
+  border: 2px solid #066e28;
   border-radius: 20px;
   font-size: 1.4rem;
   font-weight: 600;
@@ -97,7 +98,8 @@
   transition: background 0.2s;
 
   &:hover {
-    background: #054f1e;
+    background: #066e28;
+    color: #fff;
   }
 }
 
@@ -317,6 +319,7 @@
 }
 
 .footer-right {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 12px;

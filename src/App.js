@@ -3,6 +3,7 @@ import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import { publicRoutes } from "./routes";
 import DefaultLayout from "./layouts/DefautLayout";
 import ScrollToTop from "./components/ScrollToTop";
+import { ToastProvider } from "./contexts/ToastProvider";
 
 function App() {
   const renderRoutes = (routes) => {
@@ -47,12 +48,14 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App">
-        <ScrollToTop />
-        <Routes>{renderRoutes(publicRoutes)}</Routes>
-      </div>
-    </Router>
+    <ToastProvider>
+      <Router>
+        <div className="App">
+          <ScrollToTop />
+          <Routes>{renderRoutes(publicRoutes)}</Routes>
+        </div>
+      </Router>
+    </ToastProvider>
   );
 }
 
