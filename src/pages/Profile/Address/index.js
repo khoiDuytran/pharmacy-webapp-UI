@@ -12,6 +12,7 @@ import {
 } from "../../../services/userService";
 import Loading from "../../../components/Loading";
 import { ToastContext } from "../../../contexts/ToastProvider";
+import useDebounce from "../../../hooks/useDebounce";
 
 const cx = classNames.bind(styles);
 
@@ -50,6 +51,17 @@ const EMPTY_FORM = {
   isDefault: false,
 };
 
+const VALIDATORS = {
+  recipientName: {
+    regex: /[^a-zA-ZÀ-ỹ\s]/,
+    message: "Tên người nhận chỉ được chứa chữ cái và khoảng trắng",
+  },
+  numPhone: {
+    regex: /[^0-9]/,
+    message: "Số điện thoại chỉ được chứa số",
+  },
+};
+
 function Address() {
   const { toast } = useContext(ToastContext);
   const [addresses, setAddresses] = useState([]);
@@ -57,6 +69,13 @@ function Address() {
   const [formMode, setFormMode] = useState(null); // null | "add" | "edit"
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [fieldWarnings, setFieldWarnings] = useState({
+    recipientName: "",
+    numPhone: "",
+  });
+
+  const debouncedName = useDebounce(formData.recipientName, 100);
+  const debouncedPhone = useDebounce(formData.numPhone, 100);
 
   useEffect(() => {
     const fetchShippingAddress = async () => {
@@ -74,6 +93,34 @@ function Address() {
 
     fetchShippingAddress();
   }, []);
+
+  useEffect(() => {
+    if (!debouncedName) {
+      setFieldWarnings((p) => ({ ...p, recipientName: "" }));
+      return;
+    }
+    setFieldWarnings((p) => ({
+      ...p,
+      recipientName: VALIDATORS.recipientName.regex.test(debouncedName)
+        ? VALIDATORS.recipientName.message
+        : "",
+    }));
+  }, [debouncedName]);
+
+  useEffect(() => {
+    if (!debouncedPhone) {
+      setFieldWarnings((p) => ({ ...p, numPhone: "" }));
+      return;
+    }
+    setFieldWarnings((p) => ({
+      ...p,
+      numPhone: VALIDATORS.numPhone.regex.test(debouncedPhone)
+        ? VALIDATORS.numPhone.message
+        : "",
+    }));
+  }, [debouncedPhone]);
+
+  const hasWarnings = Object.values(fieldWarnings).some((w) => !!w);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -177,8 +224,16 @@ function Address() {
                   value={formData.recipientName}
                   onChange={handleInputChange}
                   placeholder="Nhập tên người nhận"
+                  className={cx({
+                    "input-error": !!fieldWarnings.recipientName,
+                  })}
                   required
                 />
+                {fieldWarnings.recipientName && (
+                  <p className={cx("field-warning")}>
+                    {fieldWarnings.recipientName}
+                  </p>
+                )}
               </div>
               <div className={cx("form-group")}>
                 <label>Số điện thoại</label>
@@ -188,8 +243,14 @@ function Address() {
                   value={formData.numPhone}
                   onChange={handleInputChange}
                   placeholder="Nhập số điện thoại"
+                  className={cx({ "input-error": !!fieldWarnings.numPhone })}
                   required
                 />
+                {fieldWarnings.numPhone && (
+                  <p className={cx("field-warning")}>
+                    {fieldWarnings.numPhone}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -253,7 +314,11 @@ function Address() {
             </div>
 
             <div className={cx("form-actions")}>
-              <button type="submit" className={cx("btn-submit")}>
+              <button
+                type="submit"
+                className={cx("btn-submit")}
+                disabled={hasWarnings}
+              >
                 {formMode === "add" ? "Lưu địa chỉ" : "Cập nhật"}
               </button>
               <button

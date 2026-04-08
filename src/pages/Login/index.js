@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import classNames from "classnames/bind";
+import Cookies from "js-cookie";
 
 import styles from "./Login.module.scss";
 import { login } from "../../services/authService";
@@ -104,7 +105,7 @@ function Login() {
 
       const token = response?.data?.token;
       if (token) {
-        localStorage.setItem("token", token);
+        Cookies.set("token", token);
         localStorage.setItem("username", form.username);
       }
 

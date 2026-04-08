@@ -104,7 +104,7 @@ function SidebarProducts({ onBrandChange, onPriceChange, onApply }) {
               checked={priceOption === "lt100"}
               onChange={(e) => setPriceOption(e.target.value)}
             />
-            <span> Dưới 100.000 đ</span>
+            <span> Dưới 100.000₫</span>
           </label>
 
           <label className={cx("price-item")}>
@@ -115,7 +115,7 @@ function SidebarProducts({ onBrandChange, onPriceChange, onApply }) {
               checked={priceOption === "100-300"}
               onChange={(e) => setPriceOption(e.target.value)}
             />
-            <span> 100.000 đ - 300.000 đ</span>
+            <span> 100.000₫ - 300.000₫</span>
           </label>
 
           <label className={cx("price-item")}>
@@ -126,7 +126,7 @@ function SidebarProducts({ onBrandChange, onPriceChange, onApply }) {
               checked={priceOption === "300-500"}
               onChange={(e) => setPriceOption(e.target.value)}
             />
-            <span> 300.000 đ - 500.000 đ</span>
+            <span> 300.000₫ - 500.000₫</span>
           </label>
 
           <label className={cx("price-item")}>
@@ -137,7 +137,7 @@ function SidebarProducts({ onBrandChange, onPriceChange, onApply }) {
               checked={priceOption === "gt500"}
               onChange={(e) => setPriceOption(e.target.value)}
             />
-            <span> Trên 500.000 đ</span>
+            <span> Trên 500.000₫</span>
           </label>
 
           <div className={cx("price-range")}>

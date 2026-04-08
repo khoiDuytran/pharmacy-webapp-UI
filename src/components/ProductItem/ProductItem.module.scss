@@ -7,7 +7,55 @@
   align-items: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-bottom: #f0f0f0 1px solid;
+  border-radius: 8px;
   padding: 12px;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    .overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 5;
+  border-radius: 8px;
+
+  // Ẩn trên mobile (không có hover)
+  @media (max-width: 480px) {
+    display: none;
+  }
+}
+
+.overlay-btn {
+  padding: 10px 24px;
+  background: #fff;
+  color: #066e28;
+  border: 2px solid #066e28;
+  border-radius: 20px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: #066e28;
+    color: #fff;
+  }
 }
 
 .product-image {

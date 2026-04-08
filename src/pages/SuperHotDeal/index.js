@@ -102,15 +102,15 @@ function SuperHotDeal() {
             className={cx("products-header-image")}
           />
         </div>
-        <div className={cx("products-grids")}>
-          {loading ? (
-            <Loading />
-          ) : (
+        {loading ? (
+          <Loading />
+        ) : (
+          <div className={cx("products-grids")}>
             <div className={cx("products-grid")}>
               <CardContent column products={products} />
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

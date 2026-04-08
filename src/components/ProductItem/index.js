@@ -11,7 +11,10 @@ function ProductItem({ data }) {
     ? data.price * (1 - data.percentDiscount / 100)
     : data.price;
   return (
-    <Link to={`/product/${data.id}`} className={cx("wrapper")}>
+    <div className={cx("wrapper")}>
+      <Link to={`/product/${data.id}`} className={cx("overlay")}>
+        <span className={cx("overlay-btn")}>Xem chi tiết</span>
+      </Link>
       <img
         className={cx("product-image")}
         src={data.urlImages?.[0] || data.image}
@@ -38,7 +41,7 @@ function ProductItem({ data }) {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

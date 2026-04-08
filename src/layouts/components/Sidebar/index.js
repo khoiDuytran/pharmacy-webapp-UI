@@ -1,14 +1,15 @@
 import classNames from "classnames/bind";
 import { Link, useLocation } from "react-router-dom";
-
-import styles from "./Sidebar.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBox,
-  faLocationPin,
+  faLocationDot,
   faSignOut,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import Cookies from "js-cookie";
+
+import styles from "./Sidebar.module.scss";
 import { logout } from "../../../services/authService";
 import { deleteChatbotSession } from "../../../services/chatbotService";
 
@@ -30,7 +31,7 @@ function Sidebar() {
     },
     {
       title: "Sổ địa chỉ",
-      icon: faLocationPin,
+      icon: faLocationDot,
       path: "/profile/dia-chi",
     },
   ];
@@ -43,7 +44,7 @@ function Sidebar() {
     } catch (error) {
       console.error(error);
     } finally {
-      localStorage.removeItem("token");
+      Cookies.remove("token");
       localStorage.removeItem("username");
       localStorage.removeItem("chat_session_id");
       window.location.href = "/";

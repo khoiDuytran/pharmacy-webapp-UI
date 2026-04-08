@@ -1,6 +1,6 @@
 import classNames from "classnames/bind";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
@@ -26,7 +26,6 @@ function ProductDetail() {
   const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [status, setStatus] = useState(false);
   const [showMagnifier, setShowMagnifier] = useState(false);
-  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
   const [stock, setStock] = useState(0);
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountedPrice, setDiscountedPrice] = useState(0);
@@ -34,6 +33,37 @@ function ProductDetail() {
   const { toast } = useContext(ToastContext);
   const [isFSItem, setIsFSItem] = useState(false);
   const [endDate, setEndDate] = useState();
+
+  // Tối ưu zoom: tránh setState liên tục khi mousemove.
+  const magnifierImgRef = useRef(null);
+  const rafIdRef = useRef(null);
+  const pendingOriginPercentRef = useRef({ xp: 50, yp: 50 }); // 50% center
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+  const scheduleMagnifierUpdate = () => {
+    if (rafIdRef.current != null) return;
+
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null;
+      const magnifierImg = magnifierImgRef.current;
+      if (!magnifierImg) return;
+
+      const { xp, yp } = pendingOriginPercentRef.current;
+      // Dùng % để đồng bộ tương quan dù kích thước magnifier/ảnh hiển thị khác nhau.
+      magnifierImg.style.transformOrigin = `${xp}% ${yp}%`;
+    });
+  };
+
+  // Cleanup RAF khi rời trang để tránh chạy thừa khi đổi route.
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current != null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -139,18 +169,43 @@ function ProductDetail() {
   const handleMouseMove = (e) => {
     const img = e.currentTarget;
     const rect = img.getBoundingClientRect();
+
+    if (rect.width <= 0 || rect.height <= 0) return;
+
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    setMagnifierPosition({ x, y });
+    const clampedX = clamp(x, 0, rect.width);
+    const clampedY = clamp(y, 0, rect.height);
+
+    const xp = (clampedX / rect.width) * 100;
+    const yp = (clampedY / rect.height) * 100;
+
+    pendingOriginPercentRef.current = { xp, yp };
+    scheduleMagnifierUpdate();
   };
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = (e) => {
     setShowMagnifier(true);
+
+    // Set vị trí ban đầu về tâm để tránh nhảy “từ 0,0” khi lần đầu hover.
+    const img = e.currentTarget;
+    const rect = img.getBoundingClientRect();
+    const xp = 50;
+    const yp = 50;
+
+    if (rect.width > 0 && rect.height > 0) {
+      pendingOriginPercentRef.current = { xp, yp };
+      scheduleMagnifierUpdate();
+    }
   };
 
   const handleMouseLeave = () => {
     setShowMagnifier(false);
+    if (rafIdRef.current != null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
   };
 
   const formatDescription = (text) => {
@@ -221,17 +276,7 @@ function ProductDetail() {
               </div>
               {showMagnifier && (
                 <div className={cx("magnifier")}>
-                  <img
-                    src={mainImage}
-                    alt="Magnified"
-                    style={{
-                      transform: "scale(3)",
-                      transformOrigin: `${magnifierPosition.x}px ${magnifierPosition.y}px`,
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
+                  <img ref={magnifierImgRef} src={mainImage} alt="Magnified" />
                 </div>
               )}
               <div className={cx("product-other-image")}>

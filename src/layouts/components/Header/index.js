@@ -8,6 +8,7 @@ import {
   faUserCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import Tippy from "@tippyjs/react";
+import Cookies from "js-cookie";
 
 import styles from "./Header.module.scss";
 import config from "../../../configs";
@@ -25,7 +26,7 @@ function Header({ onMenuToggle }) {
   const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("token");
+    const storedUser = Cookies.get("token");
     setCurrentUser(!!storedUser);
   }, []);
 

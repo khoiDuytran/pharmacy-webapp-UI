@@ -87,6 +87,12 @@ function Search() {
         onClickOutside={handleHideResult}
       >
         <div className={cx("search")}>
+          <button
+            className={cx("search-btn")}
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
+          </button>
           <input
             ref={searchRef}
             value={searchValue}
@@ -104,13 +110,6 @@ function Search() {
           {loading && (
             <FontAwesomeIcon className={cx("loading")} icon={faCircleNotch} />
           )}
-
-          <button
-            className={cx("search-btn")}
-            onMouseDown={(e) => e.preventDefault()}
-          >
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
-          </button>
         </div>
       </HeadlessTippy>
     </div>

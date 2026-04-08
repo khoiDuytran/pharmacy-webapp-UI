@@ -79,6 +79,7 @@ function Cart() {
           price: product?.price || 0,
           image: product?.urlImages?.[0] || "",
           percentDiscount: effectiveDiscount,
+          stock: product?.quantity || 0,
         };
       });
 
@@ -245,103 +246,6 @@ function Cart() {
         {"GIỎ HÀNG"}
       </div>
       <div className={cx("container")}>
-        {/* <div className={cx("cart-content")}>
-          <div className={cx("items")}>
-            <div className={cx("cart-item")}>
-              <input
-                type="checkbox"
-                className={cx("check-box")}
-                checked={
-                  selectedItems.size === cartItems.length &&
-                  cartItems.length > 0
-                }
-                onChange={handleSelectAll}
-              />
-              <div style={{ flex: 1, fontWeight: 700 }}>SẢN PHẨM</div>
-              {selectedItems.size > 0 && (
-                <button
-                  className={cx("delete-button")}
-                  onClick={handleDeleteSelected}
-                  title="Xóa các mục đã chọn"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              )}
-            </div>
-
-            {cartItems.map((item) => (
-              <div key={item.id} className={cx("cart-item")}>
-                <input
-                  type="checkbox"
-                  className={cx("check-box")}
-                  checked={selectedItems.has(item.id)}
-                  onChange={() => handleSelectItem(item.id)}
-                />
-                <div className={cx("item-info")}>
-                  <img
-                    src={item.image || item.urlImages?.[0]}
-                    alt={item.name}
-                    className={cx("item-image")}
-                  />
-                  <div className={cx("item-details")}>
-                    <p className={cx("item-name")}>{item.name}</p>
-                    <div className={cx("item-price")}>
-                      <div className={cx("price-discount-tag")}>
-                        <div
-                          className={cx("old-price")}
-                          style={{
-                            visibility:
-                              item.percentDiscount > 0 ? "visible" : "hidden",
-                          }}
-                        >
-                          {item.price.toLocaleString("vi-VN")} ₫
-                        </div>
-                        {item.percentDiscount > 0 && (
-                          <div className={cx("discount-tag")}>
-                            -{item.percentDiscount}%
-                          </div>
-                        )}
-                      </div>
-                      <div className={cx("product-price")}>
-                        {(
-                          item.price *
-                          (1 - item.percentDiscount / 100)
-                        ).toLocaleString("vi-VN")}{" "}
-                        ₫
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className={cx("item-actions")}>
-                  <div className={cx("quantity-control")}>
-                    <button
-                      onClick={() => handleDecrease(item.id)}
-                      disabled={item.quantity <= 1 || loadingItemId === item.id}
-                    >
-                      −
-                    </button>
-                    <input type="number" value={item.quantity} readOnly />
-                    <button
-                      onClick={() => handleIncrease(item.id)}
-                      disabled={loadingItemId === item.id}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <button
-                    className={cx("delete-button")}
-                    onClick={() => handleDeleteItem(item.id)}
-                    disabled={loadingItemId === item.id}
-                    title="Xoá sản phẩm"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div> */}
-
         <div className={cx("cart-content")}>
           <table className={cx("table")}>
             <thead>
@@ -392,14 +296,17 @@ function Cart() {
                     </td>
 
                     <td className={cx("col-product")}>
-                      <div className={cx("product-info")}>
+                      <Link
+                        to={`/product/${item.id}`}
+                        className={cx("product-info")}
+                      >
                         <img
                           src={item.image}
                           alt={item.name}
                           className={cx("product-img")}
                         />
                         <span className={cx("product-name")}>{item.name}</span>
-                      </div>
+                      </Link>
                     </td>
 
                     <td className={cx("col-price")}>
@@ -433,7 +340,10 @@ function Cart() {
                         <input type="number" value={item.quantity} readOnly />
                         <button
                           onClick={() => handleIncrease(item.id)}
-                          disabled={loadingItemId === item.id}
+                          disabled={
+                            item.quantity >= item.stock ||
+                            loadingItemId === item.id
+                          }
                         >
                           +
                         </button>
@@ -476,6 +386,10 @@ function Cart() {
             <div className={cx("summary-row")} style={{ color: "#e53935" }}>
               <span>Giảm giá</span>
               <span>- {discounttotal.toLocaleString("vi-VN")} ₫</span>
+            </div>
+            <div className={cx("summary-row")}>
+              <span>Phí vận chuyển</span>
+              <span>0 ₫</span>
             </div>
           </div>
           <div className={cx("summary-row", "total")}>

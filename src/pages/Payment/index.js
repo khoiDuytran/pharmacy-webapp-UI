@@ -98,7 +98,7 @@ function Payment() {
         <FontAwesomeIcon icon={faAngleRight} />
         <Link to="/cart">GIỎ HÀNG</Link>
         <FontAwesomeIcon icon={faAngleRight} />
-        TRANG THANH TOÁN
+        HOÀN TẤT THANH TOÁN
       </div>
 
       <div className={cx("container")}>

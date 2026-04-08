@@ -1,5 +1,6 @@
 .search,
 .search-result {
+  margin-top: -5px;
   width: 600px;
 
   @media (max-width: 768px) {
@@ -15,12 +16,11 @@
   background-color: var(--white);
   border-radius: var(--search-border-radius);
   border: 1.5px solid var(--white);
-  padding-left: 16px;
   display: flex;
 
   input {
     flex: 1;
-    padding-right: 40px;
+    margin-right: 10px;
     color: var(--black);
     font-size: 1.7rem;
     caret-color: var(--primary);
@@ -33,11 +33,15 @@
 
   &:focus-within {
     border-color: rgba(22, 24, 35, 0.2);
+
+    .search-btn {
+      color: var(--text-color);
+    }
   }
 }
 
 .search-result-body {
-  margin: 1rem 0;
+  margin: 0 0 1rem 0;
   overflow-y: overlay;
 }
 
@@ -51,9 +55,10 @@
 
 .loading,
 .clear {
+  height: 100%;
   font-size: 1.6rem;
   position: absolute;
-  right: calc(var(--search-button-width) + 16px);
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   color: rgba(22, 24, 35, 0.34);
@@ -79,27 +84,10 @@
 
 .search-btn {
   width: var(--search-button-width);
-  height: calc(100% - 2px);
-  // border-bottom-right-radius: var(--search-border-radius);
-  // border-top-right-radius: var(--search-border-radius);
-  border-radius: var(--search-border-radius);
+  height: 100%;
+  border-bottom-left-radius: var(--search-border-radius);
+  border-top-left-radius: var(--search-border-radius);
   font-size: 1.8rem;
-  font-weight: 600;
-  align-self: center;
-  color: var(--white);
-  background-color: #03524e;
-  border: 2px solid #03524e;
-  margin-right: 1px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    cursor: pointer;
-    background-color: #fff;
-    color: #03524e;
-  }
-
-  &:active {
-    background-color: #024440;
-    color: #fff;
-  }
+  color: rgba(22, 24, 35, 0.34);
+  background-color: transparent;
 }

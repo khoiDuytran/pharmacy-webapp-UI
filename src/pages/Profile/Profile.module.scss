@@ -1,15 +1,31 @@
 .wrapper {
-  width: 100%;
+  width: var(--default-layout-width);
   background-color: transparent;
+  margin: 0 auto;
   padding: 20px 0;
+}
+
+.header {
+  width: 100%;
+  padding-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.4rem;
+  color: #555;
+
+  a {
+    color: #555;
+    &:hover {
+      color: #066e28;
+    }
+  }
 }
 
 .container {
   display: flex;
   gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  max-width: 100%;
 
   > div:first-child {
     position: sticky;
