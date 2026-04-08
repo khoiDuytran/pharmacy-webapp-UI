@@ -9,6 +9,7 @@ const routes = {
   payment: "/payment",
   location: "/location",
   paymentResult: "/payment/result",
+  superhotdeal: "/super-hot-deal",
 };
 
 export default routes;

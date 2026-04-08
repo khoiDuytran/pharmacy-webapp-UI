@@ -274,7 +274,7 @@ function ProductDetail() {
                       </div>
                     </div>
                     <div className={cx("hot-sale-right")}>
-                      <div className={cx("hot-sale-title")}>Kết thúc sau:</div>
+                      {/* <div className={cx("hot-sale-title")}>Kết thúc sau:</div> */}
                       <CountDown small endDate={endDate} />
                     </div>
                   </div>

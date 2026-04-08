@@ -38,11 +38,17 @@
 }
 
 .tag:hover {
+  .title {
+    color: var(--greenPrimary);
+  }
   transform: translateY(-4px) scale(1.03);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .tag:active {
+  title {
+    color: var(--greenPrimary);
+  }
   transform: scale(0.96);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
@@ -67,6 +73,7 @@
 }
 
 .title {
+  color: black;
   font-size: 1.8rem;
   font-weight: 600;
   white-space: nowrap;

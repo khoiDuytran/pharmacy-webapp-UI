@@ -12,6 +12,7 @@ import ProductDetail from "../pages/ProductDetail";
 import Payment from "../pages/Payment";
 import Location from "../pages/Location";
 import PaymentResult from "../pages/Payment/PaymentResult";
+import SuperHotDeal from "../pages/SuperHotDeal";
 
 const publicRoutes = [
   { path: config.routes.home, component: Home },
@@ -41,6 +42,7 @@ const publicRoutes = [
   { path: config.routes.payment, component: Payment },
   { path: config.routes.paymentResult, component: PaymentResult },
   { path: config.routes.location, component: Location },
+  { path: config.routes.superhotdeal, component: SuperHotDeal },
 ];
 
 const privateRoutes = [];

@@ -7,7 +7,7 @@ import { faPaperPlane, faXmark } from "@fortawesome/free-solid-svg-icons";
 import styles from "./ChatBot.module.scss";
 // import image from "../../../assets/images/AIchatbot.png";
 // import image from "../../../assets/images/AI.png";
-import image from "../../../assets/images/support.png";
+import image from "../../../assets/images/chatbotAI.png";
 import { Wrapper as PopperWrapper } from "../../../components/Popper";
 import { getChatbotResponse } from "../../../services/chatbotService";
 import logoIcon from "../../../assets/images/iconLogo.png";

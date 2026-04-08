@@ -105,6 +105,7 @@ function Login() {
       const token = response?.data?.token;
       if (token) {
         localStorage.setItem("token", token);
+        localStorage.setItem("username", form.username);
       }
 
       await ensureCartExists();

@@ -44,6 +44,7 @@ function Sidebar() {
       console.error(error);
     } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("username");
       localStorage.removeItem("chat_session_id");
       window.location.href = "/";
     }

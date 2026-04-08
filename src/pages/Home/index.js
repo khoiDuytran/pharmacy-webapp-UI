@@ -151,7 +151,7 @@ function Home() {
             ) : (
               <CardContent
                 column
-                title={"Khuyến mại siêu hời"}
+                title={"Sản phẩm ưu đãi"}
                 products={discountProduct}
               />
             )}

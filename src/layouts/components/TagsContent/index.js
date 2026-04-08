@@ -24,24 +24,24 @@ const TAG_ITEMS = [
   },
   {
     icon: DT,
-    name: "Đơn thuốc của tôi",
+    name: "Đơn của tôi",
     type: "link",
     to: "/profile/don-hang",
-  },
-  {
-    icon: HTNT,
-    name: "Hệ thống nhà thuốc",
-    type: "link",
-    to: "/location",
   },
   {
     icon: DSH,
     name: "Deal siêu hot",
     type: "link",
-    to: "/products",
+    to: "/super-hot-deal",
+  },
+  {
+    icon: HTNT,
+    name: "Tìm nhà thuốc",
+    type: "link",
+    to: "/location",
   },
 ];
-function TagsContent({ onOpenChat }) {
+function TagsContent() {
   const navigate = useNavigate();
 
   const handleClick = (item) => {

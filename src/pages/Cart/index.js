@@ -186,9 +186,17 @@ function Cart() {
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
       if (selectedItems.has(item.id)) {
+        return total + item.price * item.quantity;
+      }
+      return total;
+    }, 0);
+  };
+
+  const calculateDiscount = () => {
+    return cartItems.reduce((total, item) => {
+      if (selectedItems.has(item.id)) {
         return (
-          total +
-          (item.price * (1 - item.percentDiscount / 100) || 0) * item.quantity
+          total + item.price * item.quantity * (item.percentDiscount / 100)
         );
       }
       return total;
@@ -196,7 +204,8 @@ function Cart() {
   };
 
   const subtotal = calculateSubtotal();
-  const total = subtotal;
+  const discounttotal = calculateDiscount();
+  const total = subtotal - discounttotal;
 
   if (isLoading) {
     return <Loading />;
@@ -236,9 +245,8 @@ function Cart() {
         {"GIỎ HÀNG"}
       </div>
       <div className={cx("container")}>
-        <div className={cx("cart-content")}>
+        {/* <div className={cx("cart-content")}>
           <div className={cx("items")}>
-            {/* Header */}
             <div className={cx("cart-item")}>
               <input
                 type="checkbox"
@@ -261,7 +269,6 @@ function Cart() {
               )}
             </div>
 
-            {/* Cart items */}
             {cartItems.map((item) => (
               <div key={item.id} className={cx("cart-item")}>
                 <input
@@ -333,6 +340,127 @@ function Cart() {
               </div>
             ))}
           </div>
+        </div> */}
+
+        <div className={cx("cart-content")}>
+          <table className={cx("table")}>
+            <thead>
+              <tr className={cx("table-head")}>
+                <th className={cx("col-check")}>
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedItems.size === cartItems.length &&
+                      cartItems.length > 0
+                    }
+                    onChange={handleSelectAll}
+                  />
+                </th>
+                <th className={cx("col-product")}>Sản phẩm</th>
+                <th className={cx("col-price")}>Đơn giá</th>
+                <th className={cx("col-quantity")}>Số lượng</th>
+                <th className={cx("col-total")}>Thành tiền</th>
+                <th className={cx("col-action")}>
+                  {selectedItems.size > 0 && (
+                    <button
+                      className={cx("delete-button")}
+                      onClick={handleDeleteSelected}
+                      title="Xóa các SP đã chọn"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  )}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {cartItems.map((item) => {
+                const salePrice = item.price * (1 - item.percentDiscount / 100);
+                return (
+                  <tr
+                    key={item.id}
+                    className={cx("table-row", {
+                      selected: selectedItems.has(item.id),
+                    })}
+                  >
+                    <td className={cx("col-check")}>
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(item.id)}
+                        onChange={() => handleSelectItem(item.id)}
+                      />
+                    </td>
+
+                    <td className={cx("col-product")}>
+                      <div className={cx("product-info")}>
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className={cx("product-img")}
+                        />
+                        <span className={cx("product-name")}>{item.name}</span>
+                      </div>
+                    </td>
+
+                    <td className={cx("col-price")}>
+                      <div className={cx("price-group")}>
+                        {item.percentDiscount > 0 && (
+                          <div className={cx("old-price-group")}>
+                            <span className={cx("old-price")}>
+                              {item.price.toLocaleString("vi-VN")} ₫
+                            </span>
+                            <span className={cx("discount-tag")}>
+                              -{item.percentDiscount}%
+                            </span>
+                          </div>
+                        )}
+                        <span className={cx("sale-price")}>
+                          {salePrice.toLocaleString("vi-VN")} ₫
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className={cx("col-qty")}>
+                      <div className={cx("qty-control")}>
+                        <button
+                          onClick={() => handleDecrease(item.id)}
+                          disabled={
+                            item.quantity <= 1 || loadingItemId === item.id
+                          }
+                        >
+                          −
+                        </button>
+                        <input type="number" value={item.quantity} readOnly />
+                        <button
+                          onClick={() => handleIncrease(item.id)}
+                          disabled={loadingItemId === item.id}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+
+                    <td className={cx("col-total")}>
+                      <span className={cx("line-total")}>
+                        {(salePrice * item.quantity).toLocaleString("vi-VN")} ₫
+                      </span>
+                    </td>
+
+                    <td className={cx("col-action")}>
+                      <button
+                        className={cx("delete-button")}
+                        onClick={() => handleDeleteItem(item.id)}
+                        disabled={loadingItemId === item.id}
+                        title="Xóa"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
 
         {/* Summary */}
@@ -342,16 +470,16 @@ function Cart() {
           </h3>
           <div className={cx("summary-row-detail", { show: isShow })}>
             <div className={cx("summary-row")}>
-              <span>Tạm tính</span>
+              <span>Tổng tiền</span>
               <span>{subtotal.toLocaleString("vi-VN")} ₫</span>
             </div>
-            <div className={cx("summary-row")}>
-              <span>Phí vận chuyển</span>
-              <span>0 ₫</span>
+            <div className={cx("summary-row")} style={{ color: "#e53935" }}>
+              <span>Giảm giá</span>
+              <span>- {discounttotal.toLocaleString("vi-VN")} ₫</span>
             </div>
           </div>
           <div className={cx("summary-row", "total")}>
-            <span>Tổng tiền</span>
+            <span>Thành tiền</span>
             <div className={cx("total-actions")}>
               <span>{total.toLocaleString("vi-VN")} ₫</span>
               <button
