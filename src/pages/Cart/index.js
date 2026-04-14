@@ -7,6 +7,7 @@ import {
   faAngleRight,
   faAngleUp,
   faTrash,
+  faTruckFast,
 } from "@fortawesome/free-solid-svg-icons";
 
 import styles from "./Cart.module.scss";
@@ -247,6 +248,14 @@ function Cart() {
       </div>
       <div className={cx("container")}>
         <div className={cx("cart-content")}>
+          <div className={cx("cart-content-header")}>
+            <div className={cx("freeship-note")}>
+              <span>
+                <FontAwesomeIcon icon={faTruckFast} />
+              </span>
+              <span>Miễn phí vận chuyển cho đơn hàng từ 0₫</span>
+            </div>
+          </div>
           <table className={cx("table")}>
             <thead>
               <tr className={cx("table-head")}>

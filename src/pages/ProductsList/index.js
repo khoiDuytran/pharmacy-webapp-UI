@@ -46,7 +46,11 @@ function ProductsList() {
     return params.get(key);
   };
 
+  const { searchResult: passedSearchResult, searchValue: passedSearchValue } =
+    location.state || {};
+
   const categorySlug = getQueryParam("category");
+  const searchQuery = getQueryParam("search");
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -64,7 +68,8 @@ function ProductsList() {
         : Array.isArray(res.data)
           ? res.data
           : [];
-      let filteredProducts = [...list];
+
+      let filteredProducts = searchQuery ? [...passedSearchResult] : [...list];
 
       if (categorySlug) {
         filteredProducts = filteredProducts.filter(
@@ -191,120 +196,18 @@ function ProductsList() {
     } finally {
       setLoading(false);
     }
-  }, [sortType, selectedBrands, priceFilter, categorySlug]);
+  }, [
+    sortType,
+    selectedBrands,
+    priceFilter,
+    categorySlug,
+    passedSearchResult,
+    searchQuery,
+  ]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
-
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     const res = await getProduct();
-
-  //     if (res) {
-  //       const list = Array.isArray(res)
-  //         ? res
-  //         : Array.isArray(res.data)
-  //           ? res.data
-  //           : [];
-  //       let filteredProducts = [...list];
-
-  //       // category filter (from query param)
-  //       if (categorySlug) {
-  //         filteredProducts = filteredProducts.filter(
-  //           (item) => item.categories?.slug === categorySlug,
-  //         );
-  //       }
-
-  //       const foundCategory = list.find(
-  //         (item) => item.categories?.slug === categorySlug,
-  //       );
-  //       setCategoryTitle(foundCategory?.categories?.name || "");
-
-  //       // brand filter
-  //       if (selectedBrands && selectedBrands.length > 0) {
-  //         filteredProducts = filteredProducts.filter((item) => {
-  //           const brandName = item.manufacturer?.name || "";
-  //           return selectedBrands.includes(brandName);
-  //         });
-  //       }
-
-  //       // price filter
-  //       if (priceFilter) {
-  //         const { option, min, max } = priceFilter;
-  //         if (option) {
-  //           switch (option) {
-  //             case "lt100":
-  //               filteredProducts = filteredProducts.filter(
-  //                 (p) => p.price * (1 - p.percentDiscount / 100) < 100000,
-  //               );
-  //               break;
-  //             case "100-300":
-  //               filteredProducts = filteredProducts.filter(
-  //                 (p) =>
-  //                   p.price * (1 - p.percentDiscount / 100) >= 100000 &&
-  //                   p.price <= 300000,
-  //               );
-  //               break;
-  //             case "300-500":
-  //               filteredProducts = filteredProducts.filter(
-  //                 (p) =>
-  //                   p.price * (1 - p.percentDiscount / 100) >= 300000 &&
-  //                   p.price <= 500000,
-  //               );
-  //               break;
-  //             case "gt500":
-  //               filteredProducts = filteredProducts.filter(
-  //                 (p) => p.price * (1 - p.percentDiscount / 100) > 500000,
-  //               );
-  //               break;
-  //             default:
-  //               break;
-  //           }
-  //         }
-  //         // custom range
-  //         const minVal = parseInt(min, 10);
-  //         const maxVal = parseInt(max, 10);
-  //         if (!isNaN(minVal)) {
-  //           filteredProducts = filteredProducts.filter(
-  //             (p) => p.price * (1 - p.percentDiscount / 100) >= minVal,
-  //           );
-  //         }
-  //         if (!isNaN(maxVal)) {
-  //           filteredProducts = filteredProducts.filter(
-  //             (p) => p.price * (1 - p.percentDiscount / 100) <= maxVal,
-  //           );
-  //         }
-  //       }
-
-  //       let sortedProducts = [...filteredProducts];
-
-  //       // Sắp xếp theo loại
-  //       switch (sortType) {
-  //         case "newest":
-  //           sortedProducts = sortedProducts.reverse();
-  //           break;
-  //         case "price-desc":
-  //           sortedProducts.sort((a, b) => b.price - a.price);
-  //           break;
-  //         case "price-asc":
-  //           sortedProducts.sort((a, b) => a.price - b.price);
-  //           break;
-  //         case "bestseller":
-  //           sortedProducts.sort((a, b) => b.purchaseCount - a.purchaseCount);
-  //           break;
-  //         default:
-  //           // giữ nguyên thứ tự
-  //           break;
-  //       }
-
-  //       setProducts(sortedProducts);
-  //       setCurrentPage(1);
-  //     }
-  //   };
-
-  //   fetchProducts();
-  // }, [sortType, location.search, selectedBrands, priceFilter, categorySlug]);
 
   const handleSort = (type) => {
     setSortType(type);
@@ -335,7 +238,11 @@ function ProductsList() {
         <Link to={"/"}>TRANG CHỦ</Link>
 
         <FontAwesomeIcon icon={faAngleRight} />
-        {categoryTitle || "TẤT CẢ SẢN PHẨM"}
+        {searchQuery ? (
+          <span>Kết quả tìm kiếm: "{passedSearchValue}"</span>
+        ) : (
+          <span>{categoryTitle || "Tất cả sản phẩm"}</span>
+        )}
       </div>
 
       <div className={cx("wrapper")}>
@@ -349,9 +256,11 @@ function ProductsList() {
         <div className={cx("main-content")}>
           <div className={cx("content-header")}>
             <h1 className={cx("title")}>
-              {categoryTitle
-                ? `Danh sách sản phẩm: ${categoryTitle}`
-                : "Danh sách sản phẩm"}
+              {searchQuery
+                ? `Kết quả tìm kiếm: "${passedSearchValue}"`
+                : categoryTitle
+                  ? `Danh sách sản phẩm: ${categoryTitle}`
+                  : "Danh sách sản phẩm"}
             </h1>
 
             <div className={cx("advanced-filter")}>

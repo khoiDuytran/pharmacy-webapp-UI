@@ -3,11 +3,15 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
+  faBox,
   faCartShopping,
+  faLocationDot,
   faSearch,
+  faSignOut,
+  faUser,
   faUserCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import Tippy from "@tippyjs/react";
+import HeadlessTippy from "@tippyjs/react/headless";
 import Cookies from "js-cookie";
 
 import styles from "./Header.module.scss";
@@ -17,13 +21,35 @@ import Button from "../../../components/Button";
 import { useCallback, useEffect, useState } from "react";
 import { getCartCount } from "../../../services/cartService";
 import Logo from "../../../components/Logo";
+import { Wrapper } from "../../../components/Popper";
+import { logout } from "../../../services/authService";
+import { deleteChatbotSession } from "../../../services/chatbotService";
 
 const cx = classNames.bind(styles);
+
+const UserMenu = [
+  {
+    title: "Đơn hàng của tôi",
+    icon: faBox,
+    path: "/profile/don-hang",
+  },
+  {
+    title: "Thông tin cá nhân",
+    icon: faUser,
+    path: "/profile/thong-tin-ca-nhan",
+  },
+  {
+    title: "Sổ địa chỉ",
+    icon: faLocationDot,
+    path: "/profile/dia-chi",
+  },
+];
 
 function Header({ onMenuToggle }) {
   const [currentUser, setCurrentUser] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     const storedUser = Cookies.get("token");
@@ -44,6 +70,25 @@ function Header({ onMenuToggle }) {
     window.addEventListener("cart-updated", loadCartCount);
     return () => window.removeEventListener("cart-updated", loadCartCount);
   }, [currentUser, loadCartCount]);
+
+  const handleHideMenu = () => {
+    setShowMenu(false);
+  };
+
+  const handleLogout = () => {
+    try {
+      logout();
+      const sessionId = localStorage.getItem("chat_session_id");
+      if (sessionId) deleteChatbotSession(sessionId);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      Cookies.remove("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("chat_session_id");
+      window.location.href = "/";
+    }
+  };
 
   return (
     <header className={cx("wrapper")}>
@@ -75,15 +120,56 @@ function Header({ onMenuToggle }) {
                   <span>Đăng nhập</span>
                 </Button>
               ) : (
-                <Tippy content="Tài khoản">
-                  <Button
-                    primary
-                    leftIcon={<FontAwesomeIcon icon={faUserCircle} />}
-                    to={`${config.routes.profile}/thong-tin-ca-nhan`}
-                  >
+                <HeadlessTippy
+                  interactive
+                  visible={showMenu}
+                  render={(attrs) => (
+                    <div className={cx("user-menu")} tabIndex="-1" {...attrs}>
+                      <Wrapper>
+                        <div className={cx("user-menu-body")}>
+                          {UserMenu.map((item, index) => {
+                            return (
+                              <div className={cx("menu-item")}>
+                                <Link
+                                  key={index}
+                                  to={item.path}
+                                  className={cx("user-menu-item")}
+                                  onClick={() => setShowMenu(false)}
+                                >
+                                  <FontAwesomeIcon icon={item.icon} />
+                                  <span className={cx("menu-item-title")}>
+                                    {item.title}
+                                  </span>
+                                </Link>
+                              </div>
+                            );
+                          })}
+
+                          <div className={cx("logout-btn")}>
+                            <button
+                              className={cx("item-logout")}
+                              onClick={handleLogout}
+                            >
+                              <FontAwesomeIcon icon={faSignOut} />
+                              <span className={cx("title")}>Đăng xuất</span>
+                            </button>
+                          </div>
+                        </div>
+                      </Wrapper>
+                    </div>
+                  )}
+                  onClickOutside={handleHideMenu}
+                >
+                  <Button primary onClick={() => setShowMenu((p) => !p)}>
+                    <div className={cx("username-img")}>
+                      {localStorage
+                        .getItem("username")
+                        ?.charAt(0)
+                        .toUpperCase() || "U"}
+                    </div>
                     {localStorage.getItem("username") || "Tài khoản"}
                   </Button>
-                </Tippy>
+                </HeadlessTippy>
               )}
             </div>
           </div>

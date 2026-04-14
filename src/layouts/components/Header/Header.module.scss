@@ -228,8 +228,68 @@
 }
 
 .username-img {
-  padding: 3px 10px;
+  padding: 3px 8px;
   border-radius: 50%;
   background-color: var(--primary);
   color: white;
+}
+
+.user-menu {
+  width: 200px;
+}
+
+.user-menu-body {
+  margin: 0 0 1rem 0;
+}
+
+.logout-btn {
+  width: 100%;
+}
+
+.item-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: red;
+  background-color: transparent;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-left: 4px solid red;
+    color: red;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+  background-color: transparent;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-left: 4px solid var(--greenPrimary);
+    background-color: #f5f5f5;
+    color: var(--greenPrimary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  svg {
+    font-size: 16px;
+    width: 20px;
+  }
+}
+
+.menu-item-title {
+  font-size: 1.4rem;
 }

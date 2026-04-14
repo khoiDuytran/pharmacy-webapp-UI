@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight, faLocationDot } from "@fortawesome/free-solid-svg-icons";
@@ -9,8 +9,56 @@ import { getAllShippingAddresses } from "../../services/userService";
 import { buyNow } from "../../services/paymentService";
 import cash from "../../assets/images/paymentMethod/cash.png";
 import vnpay from "../../assets/images/paymentMethod/vnpay.jpg";
+import { ToastContext } from "../../contexts/ToastProvider";
+import { addShippingAddress } from "../../services/userService";
+import useDebounce from "../../hooks/useDebounce";
 
 const cx = classNames.bind(styles);
+
+const CITIES = [
+  "Hà Nội",
+  "TP. Hồ Chí Minh",
+  "Hải Phòng",
+  "Đà Nẵng",
+  "Cần Thơ",
+  "Hà Giang",
+  "Ninh Bình",
+  "Thái Bình",
+  "Nam Định",
+  "Vĩnh Phúc",
+];
+
+const DISTRICTS = [
+  "Quận Hai Bà Trưng",
+  "Quận Ba Đình",
+  "Quận Hoàn Kiếm",
+  "Quận Cầu Giấy",
+  "Quận Thanh Xuân",
+  "Quận Đống Đa",
+  "Quận Nam Từ Liêm",
+  "Quận Bắc Từ Liêm",
+  "Quận Hà Đông",
+  "Quận Hoàng Mai",
+];
+
+const EMPTY_FORM = {
+  recipientName: "",
+  numPhone: "",
+  addressLine: "",
+  district: "",
+  city: "",
+};
+
+const VALIDATORS = {
+  recipientName: {
+    regex: /[^a-zA-ZÀ-ỹ\s]/,
+    message: "Tên người nhận chỉ được chứa chữ cái và khoảng trắng",
+  },
+  numPhone: {
+    regex: /[^0-9]/,
+    message: "Số điện thoại chỉ được chứa số",
+  },
+};
 
 function Payment() {
   const navigate = useNavigate();
@@ -22,6 +70,14 @@ function Payment() {
   const [showAddressPicker, setShowAddressPicker] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(1); // "cod" | "vnpay"
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [note, setNote] = useState("");
+  const [fieldWarnings, setFieldWarnings] = useState({
+    recipientName: "",
+    numPhone: "",
+  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [formMode, setFormMode] = useState(null);
+  const { toast } = useContext(ToastContext);
 
   // Load danh sách địa chỉ
   useEffect(() => {
@@ -39,6 +95,75 @@ function Payment() {
     };
     load();
   }, []);
+
+  const debouncedName = useDebounce(formData.recipientName, 100);
+  const debouncedPhone = useDebounce(formData.numPhone, 100);
+
+  useEffect(() => {
+    if (!debouncedName) {
+      setFieldWarnings((p) => ({ ...p, recipientName: "" }));
+      return;
+    }
+    setFieldWarnings((p) => ({
+      ...p,
+      recipientName: VALIDATORS.recipientName.regex.test(debouncedName)
+        ? VALIDATORS.recipientName.message
+        : "",
+    }));
+  }, [debouncedName]);
+
+  useEffect(() => {
+    if (!debouncedPhone) {
+      setFieldWarnings((p) => ({ ...p, numPhone: "" }));
+      return;
+    }
+    setFieldWarnings((p) => ({
+      ...p,
+      numPhone: VALIDATORS.numPhone.regex.test(debouncedPhone)
+        ? VALIDATORS.numPhone.message
+        : "",
+    }));
+  }, [debouncedPhone]);
+
+  const hasWarnings = Object.values(fieldWarnings).some((w) => !!w);
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const openAddForm = () => {
+    setFormData(EMPTY_FORM);
+    setFormMode("add");
+  };
+
+  const handleCancel = () => {
+    setFormMode(null);
+    setFormData(EMPTY_FORM);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { recipientName, numPhone, addressLine, district, city } = formData;
+    if (!recipientName || !numPhone || !addressLine || !district || !city)
+      return;
+
+    try {
+      if (formMode === "add") {
+        const res = await addShippingAddress(formData);
+        const added = res?.data || res || { ...formData, id: Date.now() };
+        setAddresses((prev) => [...prev, added]);
+        toast.success("Thêm địa chỉ mới thành công!");
+      }
+      handleCancel();
+    } catch (err) {
+      console.error("Error saving address", err);
+      toast.error("Có lỗi xảy ra, vui lòng thử lại.");
+    }
+  };
 
   // Tính tiền
   const calcPrice = (product) =>
@@ -69,7 +194,7 @@ function Payment() {
         products,
         shippingAddressId: selectedAddress.id,
         paymentMethod, // 1 = COD, 2 = VNPay
-        note: "",
+        note: note.trim(),
       };
 
       const res = await buyNow(payload);
@@ -89,6 +214,11 @@ function Payment() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowAddressPicker(false);
+    setFormMode(null);
   };
 
   return (
@@ -153,6 +283,15 @@ function Payment() {
               </div>
             ))
           )}
+
+          <div className={cx("note")}>
+            <div className={cx("note-title")}>Ghi chú:</div>
+            <textarea
+              placeholder="Nhập ghi chú cho đơn hàng (tùy chọn)"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
 
           {/* Tổng tiền */}
           <div className={cx("summary")}>
@@ -281,7 +420,127 @@ function Payment() {
           className={cx("modal-overlay")}
           onClick={() => setShowAddressPicker(false)}
         >
-          <div className={cx("modal")} onClick={(e) => e.stopPropagation()}>
+          {formMode && (
+            <div
+              className={cx("form-container")}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <form onSubmit={handleSubmit}>
+                <div className={cx("form-header")}>
+                  <span>Thêm địa chỉ mới</span>
+                  <button onClick={() => handleCloseModal()}>✕</button>
+                </div>
+                <div className={cx("form-row")}>
+                  <div className={cx("form-group")}>
+                    <label>Tên người nhận</label>
+                    <input
+                      type="text"
+                      name="recipientName"
+                      value={formData.recipientName}
+                      onChange={handleInputChange}
+                      placeholder="Nhập tên người nhận"
+                      className={cx({
+                        "input-error": !!fieldWarnings.recipientName,
+                      })}
+                      required
+                    />
+                    {fieldWarnings.recipientName && (
+                      <p className={cx("field-warning")}>
+                        {fieldWarnings.recipientName}
+                      </p>
+                    )}
+                  </div>
+                  <div className={cx("form-group")}>
+                    <label>Số điện thoại</label>
+                    <input
+                      type="tel"
+                      name="numPhone"
+                      value={formData.numPhone}
+                      onChange={handleInputChange}
+                      placeholder="Nhập số điện thoại"
+                      className={cx({
+                        "input-error": !!fieldWarnings.numPhone,
+                      })}
+                      required
+                    />
+                    {fieldWarnings.numPhone && (
+                      <p className={cx("field-warning")}>
+                        {fieldWarnings.numPhone}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className={cx("form-group")}>
+                  <label>Chọn Tỉnh/Thành phố</label>
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                    {CITIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={cx("form-group")}>
+                  <label>Chọn Quận/Huyện</label>
+                  <select
+                    name="district"
+                    value={formData.district}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">-- Chọn Quận/Huyện --</option>
+                    {DISTRICTS.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={cx("form-group")}>
+                  <label>Nhập địa chỉ cụ thể</label>
+                  <input
+                    type="text"
+                    name="addressLine"
+                    value={formData.addressLine}
+                    onChange={handleInputChange}
+                    placeholder="Nhập địa chỉ cụ thể"
+                    required
+                  />
+                </div>
+
+                <div className={cx("form-actions")}>
+                  <button
+                    type="submit"
+                    className={cx("btn-submit")}
+                    disabled={hasWarnings}
+                  >
+                    {"Lưu địa chỉ"}
+                  </button>
+                  <button
+                    type="button"
+                    className={cx("btn-cancel")}
+                    onClick={handleCancel}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div
+            className={cx("modal", { hidden: !!formMode })}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={cx("modal-header")}>
               <span>Địa Chỉ Của Tôi</span>
               <button onClick={() => setShowAddressPicker(false)}>✕</button>
@@ -321,13 +580,16 @@ function Payment() {
             </div>
 
             <div className={cx("modal-footer")}>
-              <Link
+              <button className={cx("btn-manage-addr")} onClick={openAddForm}>
+                Thêm địa chỉ mới
+              </button>
+              {/* <Link
                 to="/profile/dia-chi"
                 className={cx("btn-manage-addr")}
                 onClick={() => setShowAddressPicker(false)}
               >
                 Quản lý địa chỉ giao hàng
-              </Link>
+              </Link> */}
               <button
                 className={cx("btn-confirm")}
                 onClick={() => setShowAddressPicker(false)}

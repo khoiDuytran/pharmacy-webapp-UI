@@ -20,9 +20,10 @@
   cursor: pointer;
   transition: all 0.25s ease;
 
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 12px;
-  background: #fff;
+  // background: #fff;
+  background: var(--greenPrimary);
 
   display: flex;
   align-items: center;
@@ -32,50 +33,46 @@
   // trạng thái mặc định
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 
+  &:hover {
+    .title {
+      color: var(--primary);
+    }
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+
+    .icon {
+      transform: scale(1.1);
+      color: var(--primary);
+    }
+  }
+
+  &:active {
+    title {
+      color: var(--greenPrimary);
+    }
+    transform: scale(0.96);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
   @media (max-width: 768px) {
     padding: 8px;
   }
 }
 
-.tag:hover {
-  .title {
-    color: var(--greenPrimary);
-  }
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-.tag:active {
-  title {
-    color: var(--greenPrimary);
-  }
-  transform: scale(0.96);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.icon img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
+.icon {
+  color: #fff;
+  font-size: 2.2rem;
   transition: transform 0.25s ease;
 
   @media (max-width: 480px) {
-    img {
-      width: 36px;
-      height: 360px;
-      object-fit: contain;
-    }
+    font-size: 1.5rem;
   }
 }
 
-.tag:hover .icon img {
-  transform: scale(1.1);
-}
-
 .title {
-  color: black;
+  color: #fff;
   font-size: 1.8rem;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

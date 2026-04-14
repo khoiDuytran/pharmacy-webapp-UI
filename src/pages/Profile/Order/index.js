@@ -309,6 +309,10 @@ function Order() {
                         ? new Date(order.createdAt).toLocaleDateString("vi-VN")
                         : "—"}
                     </span>
+                    <span className={cx("order-note")}>
+                      {"Ghi chú: "}
+                      {order.note ? <em>{order.note}</em> : "—"}
+                    </span>
                   </div>
                   <div className={cx("footer-right")}>
                     <span className={cx("total")}>

@@ -14,12 +14,13 @@ import { Wrapper as PopperWrapper } from "../../../components/Popper";
 import ProductItem from "../../../components/ProductItem";
 import { useDebounce } from "../../../hooks";
 import search from "../../../services/searchService";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const cx = classNames.bind(styles);
 
 function Search() {
   const searchRef = useRef();
+  const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
@@ -68,6 +69,16 @@ function Search() {
     setLoading(false);
   };
 
+  const handleFindMore = () => {
+    navigate(`/products?search=${searchValue}`, {
+      state: {
+        searchResult: searchResult,
+        searchValue: searchValue,
+      },
+    });
+    setShowResult(false);
+  };
+
   return (
     <div>
       <HeadlessTippy
@@ -81,6 +92,9 @@ function Search() {
                   return <ProductItem key={result.id} data={result} />;
                 })}
               </div>
+              <button className={cx("find-more")} onClick={handleFindMore}>
+                <span>Xem kết quả cho "{searchValue}"</span>
+              </button>
             </PopperWrapper>
           </div>
         )}

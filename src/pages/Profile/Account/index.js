@@ -13,11 +13,11 @@ const cx = classNames.bind(styles);
 
 const VALIDATORS = {
   name: {
-    regex: /[^a-zA-ZÀ-ỹ\s]/, // chỉ cho chữ cái + khoảng trắng
+    regex: /[^a-zA-ZÀ-ỹ\s]/,
     message: "Họ tên không được chứa số hoặc kí tự đặc biệt",
   },
   phoneNumber: {
-    regex: /^(?!\d{10}$).*/, // phải đúng 10 chữ số
+    regex: /^(?!\d{10}$).*/,
     message: "Số điện thoại phải có đúng 10 chữ số",
   },
   email: {

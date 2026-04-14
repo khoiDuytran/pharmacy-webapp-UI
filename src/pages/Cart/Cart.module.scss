@@ -83,6 +83,24 @@
   overflow-x: auto;
 }
 
+.cart-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 12px 12px 0 0;
+  background: var(--greenPrimary);
+  color: #fff;
+}
+
+.freeship-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 1.4rem;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
