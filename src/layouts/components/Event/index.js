@@ -8,7 +8,7 @@ import Countdown from "../../../components/CountDown";
 const cx = classNames.bind(styles);
 
 function Event({ eventProducts = [], activeTime, startDate }) {
-  const [isActive, setIsActive] = useState(false);
+  // const [isActive, setIsActive] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
   const [hasStarted, setHasStarted] = useState(true);
   const [countdownTime, setCountdownTime] = useState(activeTime);
@@ -39,7 +39,7 @@ function Event({ eventProducts = [], activeTime, startDate }) {
         const ended = now >= end;
       
         setHasStarted(started);
-        setIsActive(started && !ended);   // đang trong thời gian chạy
+        // setIsActive(started && !ended);   // đang trong thời gian chạy
         setIsEnded(ended);                
       }
     };    
