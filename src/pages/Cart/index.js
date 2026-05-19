@@ -68,7 +68,7 @@ function Cart() {
 
         // Xác định label và countdown time
         if (start && now < start) {
-          eventActive = false;;
+          eventActive = false;
         } else if (end && now < end) {
           eventActive = true;
         } else {
@@ -94,10 +94,11 @@ function Cart() {
 
         const effectiveDiscount = product
           ? isInFlashSale
-            ? eventActive ? Math.max(
-                product.percentDiscount || 0,
-                flashSaleActice.discountPercent,
-              )
+            ? eventActive
+              ? Math.max(
+                  product.percentDiscount || 0,
+                  flashSaleActice.discountPercent,
+                )
               : product.percentDiscount || 0
             : product.percentDiscount || 0
           : 0;
@@ -462,12 +463,31 @@ function Cart() {
                           <input
                             type="number"
                             value={editQty[item.id] ?? item.quantity}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              // Allow empty string while user is typing
+                              if (value === "") {
+                                setEditQty((prev) => ({
+                                  ...prev,
+                                  [item.id]: value,
+                                }));
+                                return;
+                              }
+                              const numValue = parseInt(value, 10);
+                              // Ignore invalid input
+                              if (isNaN(numValue) || numValue < 1) {
+                                return;
+                              }
+                              // Auto-clamp to stock
+                              const clampedValue = Math.min(
+                                numValue,
+                                item.stock,
+                              );
                               setEditQty((prev) => ({
                                 ...prev,
-                                [item.id]: e.target.value,
-                              }))
-                            }
+                                [item.id]: clampedValue,
+                              }));
+                            }}
                             min={1}
                             max={item.stock}
                             autoFocus

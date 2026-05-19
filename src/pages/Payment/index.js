@@ -185,19 +185,20 @@ function Payment() {
     setIsSubmitting(true);
     try {
       // products: { [productId]: quantity }
-      const products = {};
-      selectedProducts.forEach((p) => {
-        products[p.id] = p.quantity;
-      });
+      // const products = {};
+      // selectedProducts.forEach((p) => {
+      //   products[p.id] = p.quantity;
+      // });
 
       const payload = {
-        products,
+        // products,
         shippingAddressId: selectedAddress.id,
         paymentMethod, // 1 = COD, 2 = VNPay
         note: note.trim(),
       };
 
       const res = await buyNow(payload);
+      window.dispatchEvent(new Event("cart-updated"));
       if (paymentMethod === 2 && res?.paymentUrl) {
         sessionStorage.setItem("billId", res.billId);
         window.location.href = res.paymentUrl;

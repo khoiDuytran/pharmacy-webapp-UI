@@ -12,7 +12,7 @@ import { post } from "../utils/HttpRequests";
 
 export const buyNow = async (data) => {
   try {
-    const response = await post("/bill/buy-now", data);
+    const response = await post("/bill/check-out", data);
     return response.data;
   } catch (error) {
     console.log(error);
