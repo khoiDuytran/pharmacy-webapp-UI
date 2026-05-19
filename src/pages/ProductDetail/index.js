@@ -30,9 +30,17 @@ function ProductDetail() {
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountedPrice, setDiscountedPrice] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingOther, setLoadingOther] = useState(true);
   const { toast } = useContext(ToastContext);
   const [isFSItem, setIsFSItem] = useState(false);
+  // const [isFSActive, setIsFSActive] = useState(true);
+  // const [isFSUpcoming, setIsFSUpcoming] = useState(false);
   const [endDate, setEndDate] = useState();
+  const [startDate, setStartDate] = useState();
+  const [countdownLabel, setCountdownLabel] = useState("Hết sau:");
+  const [countdownTime, setCountdownTime] = useState();
+  // const [isEventActive, setIsEventActive] = useState(true);
+  const [eventProducts, setEventProducts] = useState([]);
 
   // Tối ưu zoom: tránh setState liên tục khi mousemove.
   const magnifierImgRef = useRef(null);
@@ -77,21 +85,55 @@ function ProductDetail() {
 
         const flashSaleActice = flashSaleActiceArray[0];
 
+        setEventProducts(flashSaleActice?.productIds || []);
+
         const productId = productData.id;
 
         const isInFlashSale =
           flashSaleActice?.productIds?.includes(productId) ?? false;
 
+        let eventActive = true;
+
+        // Kiểm tra trạng thái event
+        if (flashSaleActice) {
+          const now = new Date();
+          const start = flashSaleActice.startDate
+            ? new Date(flashSaleActice.startDate)
+            : null;
+          const end = flashSaleActice.endDate
+            ? new Date(flashSaleActice.endDate)
+            : null;
+
+          // Xác định label và countdown time dựa trên thời gian
+          if (start && now < start) {
+            // Chưa bắt đầu
+            setCountdownLabel("BẮT ĐẦU SAU:");
+            setCountdownTime(flashSaleActice.startDate);
+            eventActive = false;
+          } else if (end && now < end) {
+            // Đang hoạt động
+            setCountdownLabel("KẾT THÚC SAU:");
+            setCountdownTime(flashSaleActice.endDate);
+            eventActive = true;
+          } else {
+            // Đã kết thúc hoặc không có time info
+            setCountdownLabel("KẾT THÚC SAU:");
+            setCountdownTime(flashSaleActice.endDate);
+            eventActive = false;
+          }
+        }
+
         const effectiveDiscount = isInFlashSale
-          ? Math.max(
-              productData.percentDiscount || 0,
-              flashSaleActice.discountPercent,
-            )
+          ? eventActive ? Math.max(
+            productData.percentDiscount || 0,
+            flashSaleActice.discountPercent,
+          ) : productData.percentDiscount || 0
           : productData.percentDiscount || 0;
 
         setProductDetail(productData);
         setIsFSItem(isInFlashSale);
-        setEndDate(flashSaleActice.endDate);
+        setEndDate(flashSaleActice?.endDate);
+        setStartDate(flashSaleActice?.startDate || null);
         setSelectedImageIndex(0);
         setPurchaseQuantity(1);
 
@@ -109,6 +151,8 @@ function ProductDetail() {
         setStatus(productData.quantity - productData.purchaseCount > 0);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -132,23 +176,30 @@ function ProductDetail() {
         const res = [...list];
 
         const filtered = res.filter(
-          (item) => item.categories?.name === productDetail?.categories?.name,
+          (item) => !eventProducts.includes(item.id),
         );
 
         const products = filtered.filter(
           (item) => item.id !== productDetail.id,
         );
 
-        setOtherProducts(products);
+        const shuffled = products
+          .map((item) => ({ item, sort: Math.random() }))
+          .sort((a, b) => a.sort - b.sort)
+          .map(({ item }) => item)
+          .slice(0, 5);
+
+
+        setOtherProducts(shuffled);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false);
+        setLoadingOther(false);
       }
     };
 
     fetchOtherProducts();
-  }, [productDetail]);
+  }, [productDetail, eventProducts]);
 
   const mainImage = productDetail?.urlImages?.[selectedImageIndex];
   const allImages = productDetail?.urlImages || [];
@@ -340,14 +391,16 @@ function ProductDetail() {
                 <div className={cx("fs-price-group")}>
                   <div className={cx("hot-sale")}>
                     <div className={cx("hot-sale-left")}>
-                      <div className={cx("hot-sale-title")}>FLASH SALE</div>
                       <div className={cx("hot-sale-icon")}>
                         <img src={hotIcon} alt="hot-sale" />
                       </div>
+                      <div className={cx("hot-sale-title")}>FLASH SALE {countdownLabel}</div>
                     </div>
                     <div className={cx("hot-sale-right")}>
-                      {/* <div className={cx("hot-sale-title")}>Kết thúc sau:</div> */}
-                      <CountDown small endDate={endDate} />
+                      {/* <div className={cx("countdown-label")}>
+                        {countdownLabel}
+                      </div> */}
+                      <CountDown small endDate={countdownTime} />
                     </div>
                   </div>
 
@@ -470,7 +523,7 @@ function ProductDetail() {
           </div>
 
           <div className={cx("other-product-box")}>
-            {loading ? (
+            {loadingOther || loading ? (
               <Loading />
             ) : otherProducts.length > 0 ? (
               <CardContent
@@ -479,7 +532,7 @@ function ProductDetail() {
                 products={otherProducts}
               />
             ) : (
-              "Khong con san pham"
+              "Không có sản phẩm khác"
             )}
           </div>
         </>

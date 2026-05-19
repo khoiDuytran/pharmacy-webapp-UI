@@ -180,6 +180,20 @@
   gap: 5px;
 }
 
+.countdown-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+
+  &.fs-upcoming {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f58220;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+}
+
 .price-group {
   display: flex;
   flex-direction: column;
@@ -363,6 +377,10 @@
   margin-left: auto;
   margin-right: auto;
   border-radius: 8px;
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 // Mobile Responsive Design
@@ -482,6 +500,10 @@
     width: 100%;
     padding: 15px;
     margin: 0 0 20px 0;
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
@@ -582,5 +604,9 @@
     padding: 10px;
     margin: 20px 0;
     box-sizing: border-box;
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }

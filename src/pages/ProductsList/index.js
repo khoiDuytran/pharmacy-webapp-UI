@@ -53,6 +53,7 @@ function ProductsList() {
   const searchQuery = getQueryParam("search");
 
   const fetchProducts = useCallback(async () => {
+    setLoading(true);
     try {
       const [res, eventsRes] = await Promise.all([getProduct(), getAllEvent()]);
 
@@ -62,41 +63,47 @@ function ProductsList() {
 
       const flashSaleActiceArray = eventsRes.filter((f) => f.active);
       const flashSaleActice = flashSaleActiceArray[0];
-
-      const list = Array.isArray(res)
-        ? res
-        : Array.isArray(res.data)
-          ? res.data
-          : [];
-
+  
+      // ✅ Kiểm tra thời gian event
+      let eventStarted = true;
+      let eventEnded = false;
+  
+      if (flashSaleActice) {
+        const now = new Date();
+        const start = flashSaleActice.startDate ? new Date(flashSaleActice.startDate) : null;
+        const end = flashSaleActice.endDate ? new Date(flashSaleActice.endDate) : null;
+  
+        if (start) eventStarted = now >= start;
+        if (end) eventEnded = now >= end;
+      }
+  
+      const isFlashSaleUpcoming = !!flashSaleActice && !eventStarted;
+      const isFlashSaleActive = !!flashSaleActice && eventStarted && !eventEnded;
+  
+      const list = Array.isArray(res) ? res : Array.isArray(res.data) ? res.data : [];
+  
       let filteredProducts = searchQuery ? [...passedSearchResult] : [...list];
-
+  
       if (categorySlug) {
         filteredProducts = filteredProducts.filter(
           (item) => item.categories?.slug === categorySlug,
         );
       }
-
+  
       const foundCategory = list.find(
         (item) => item.categories?.slug === categorySlug,
       );
       setCategoryTitle(foundCategory?.categories?.name || "");
-
+  
       let productsWithFlashSale = filteredProducts.map((product) => {
         const productId = product._id || product.id;
-
-        const isInFlashSale =
-          flashSaleActice?.productIds?.includes(productId) ?? false;
-
-        const effectiveDiscount = product
-          ? isInFlashSale
-            ? Math.max(
-                product.percentDiscount || 0,
-                flashSaleActice.discountPercent,
-              )
-            : product.percentDiscount || 0
-          : 0;
-
+        const isInFlashSale = flashSaleActice?.productIds?.includes(productId) ?? false;
+  
+        // ✅ Chỉ áp dụng discount flash sale khi event đang active
+        const effectiveDiscount = isInFlashSale && isFlashSaleActive
+          ? Math.max(product.percentDiscount || 0, flashSaleActice.discountPercent)
+          : product.percentDiscount || 0;
+  
         return {
           id: productId,
           manufacturer: product?.manufacturer || null,
@@ -107,6 +114,7 @@ function ProductsList() {
           price: product?.price || 0,
           urlImages: product?.urlImages || [],
           percentDiscount: effectiveDiscount,
+          isFlashSaleUpcoming: isInFlashSale && isFlashSaleUpcoming,
         };
       });
 
@@ -187,7 +195,6 @@ function ProductsList() {
           break;
       }
 
-      setLoading(true);
       setProducts(sortedProducts);
       setCurrentPage(1);
     } catch (error) {
@@ -228,10 +235,6 @@ function ProductsList() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (loading) {
-    return <Loading />;
-  }
-
   return (
     <div className={cx("container")}>
       <div className={cx("header")}>
@@ -258,7 +261,7 @@ function ProductsList() {
             <h1 className={cx("title")}>
               {searchQuery
                 ? `Kết quả tìm kiếm: "${passedSearchValue}"`
-                : categoryTitle
+                : categoryTitle && !loading
                   ? `Danh sách sản phẩm: ${categoryTitle}`
                   : "Danh sách sản phẩm"}
             </h1>
@@ -329,37 +332,41 @@ function ProductsList() {
             </div>
           </div>
 
-          {loading ? (
-            <div className={cx("loading-overlay")}>
-              <Loading />
-            </div>
-          ) : currentProducts.length === 0 ? (
-            <p className={cx("empty")}>Không tìm thấy sản phẩm nào.</p>
-          ) : (
-            <div className={cx("products-grid")}>
-              {currentProducts.map((product, index) => (
-                <ProductCard key={index} data={product} />
-              ))}
-            </div>
-          )}
+          <div className={cx("products-container")}>
+            {loading ? (
+              <div className={cx("loading-overlay")}>
+                <Loading />
+              </div>
+            ) : currentProducts.length === 0 ? (
+              <p className={cx("empty")}>Không tìm thấy sản phẩm nào.</p>
+            ) : (
+              <>
+                <div className={cx("products-grid")}>
+                  {currentProducts.map((product, index) => (
+                    <ProductCard key={index} data={product} />
+                  ))}
+                </div>
 
-          {totalPages > 1 && (
-            <div className={cx("pagination")}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
-                  <button
-                    key={pageNum}
-                    className={cx("page-button", {
-                      active: currentPage === pageNum,
-                    })}
-                    onClick={() => handlePageChange(pageNum)}
-                  >
-                    {pageNum}
-                  </button>
-                ),
-              )}
-            </div>
-          )}
+                {totalPages > 1 && (
+                  <div className={cx("pagination")}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (pageNum) => (
+                        <button
+                          key={pageNum}
+                          className={cx("page-button", {
+                            active: currentPage === pageNum,
+                          })}
+                          onClick={() => handlePageChange(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

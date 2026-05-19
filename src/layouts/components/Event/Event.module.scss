@@ -52,6 +52,39 @@
   margin-bottom: 32px;
   overflow: hidden;
   box-sizing: border-box;
+  position: relative;
+}
+
+/* ===== Overlay ===== */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4;
+  border-radius: 0 0 8px 8px;
+  backdrop-filter: blur(2px);
+}
+
+.message {
+  background: #fff;
+  color: var(--greenPrimary);
+  padding: 20px 40px;
+  border-radius: 8px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid var(--greenPrimary);
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+    padding: 15px 25px;
+  }
 }
 
 /* ===== Header ===== */

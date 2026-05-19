@@ -242,3 +242,21 @@
     border-color: #1a5c3b;
   }
 }
+
+.products-container {
+  min-height: 400px;
+}
+
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.empty {
+  text-align: center;
+  font-size: 1.6rem;
+  color: #666;
+  padding: 60px 0;
+}

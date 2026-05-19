@@ -55,6 +55,7 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [eventTime, setEventTime] = useState(null);
+  const [eventStartDate, setEventStartDate] = useState(null);
   const [eventProducts, setEventProducts] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [sections, setSections] = useState([]);
@@ -126,6 +127,7 @@ function Home() {
       const activeEvent = EventActive[0];
 
       setEventTime(activeEvent.endDate);
+      setEventStartDate(activeEvent.startDate || null);
 
       // Lấy sản phẩm trong event, override percentDiscount bằng discountPercent của event
       const eventProducts = (activeEvent?.productIds || [])
@@ -199,6 +201,7 @@ function Home() {
               <Event
                 eventProducts={eventProducts || []}
                 activeTime={eventTime || null}
+                startDate={eventStartDate}
               />
             )}
           </section>

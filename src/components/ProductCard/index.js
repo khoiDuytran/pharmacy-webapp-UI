@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const cx = classNames.bind(styles);
 
-function ProductCard({ data }) {
+function ProductCard({ data, isFlashSaleUpcoming = false }) {
   const hasDiscount = data.percentDiscount > 0;
   const discountedPrice = hasDiscount
     ? data.price * (1 - data.percentDiscount / 100)
@@ -14,10 +14,15 @@ function ProductCard({ data }) {
   return (
     <div className={cx("wrapper")}>
       {hasDiscount && (
-        <div className={cx("discount-tag")}>Giảm {data.percentDiscount}%</div>
+        <div className={cx("discount-tag")}>
+          Giảm {isFlashSaleUpcoming ? "?" : data.percentDiscount}%
+        </div>
       )}
 
-      <Link to={`/product/${data.id}`} className={cx("overlay")}>
+      <Link
+        to={`/product/${data.id}`}
+        className={cx("overlay")}
+      >
         <span className={cx("overlay-btn")}>Xem chi tiết</span>
       </Link>
 
@@ -38,15 +43,14 @@ function ProductCard({ data }) {
         <div className={cx("price-group")}>
           <div
             className={cx("old-price")}
-            style={{ visibility: hasDiscount ? "visible" : "hidden" }}
+            style={{ visibility: (hasDiscount || isFlashSaleUpcoming) ? "visible" : "hidden" }}
           >
             {data.price.toLocaleString("vi-VN")} ₫
           </div>
           <div className={cx("price")}>
-            {discountedPrice.toLocaleString("vi-VN")} ₫
+            {isFlashSaleUpcoming ? "?" : discountedPrice.toLocaleString("vi-VN")} ₫
           </div>
         </div>
-        {/* <div className={cx("purchase-count")}>Đã bán {data.purchaseCount}</div> */}
       </div>
     </div>
   );

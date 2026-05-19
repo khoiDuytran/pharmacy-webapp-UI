@@ -24,6 +24,7 @@ import { getProduct } from "../../services/productService";
 import Loading from "../../components/Loading";
 import { ToastContext } from "../../contexts/ToastProvider";
 import { getAllEvent } from "../../services/eventService";
+import CountDown from "../../components/CountDown";
 
 const cx = classNames.bind(styles);
 
@@ -37,6 +38,12 @@ function Cart() {
   const [loadingAction, setLoadingAction] = useState(false); // "increase" | "decrease" | "delete"
   const [editingId, setEditingId] = useState(null); // id đang edit
   const [editQty, setEditQty] = useState({}); // { [id]: qty }
+  const [eventStartDate, setEventStartDate] = useState(null);
+  const [eventEndDate, setEventEndDate] = useState(null);
+  const [eventCountdownLabel, setEventCountdownLabel] =
+    useState("Kết thúc sau:");
+  const [eventCountdownTime, setEventCountdownTime] = useState(null);
+  const [isEventActive, setIsEventActive] = useState(true);
 
   const fetchCart = useCallback(async () => {
     try {
@@ -52,6 +59,37 @@ function Cart() {
 
       const flashSaleActiceArray = flashSaleRes.filter((f) => f.active);
       const flashSaleActice = flashSaleActiceArray[0];
+
+      let eventActive = true;
+
+      // Cập nhật thông tin event timing
+      if (flashSaleActice) {
+        setEventStartDate(flashSaleActice.startDate || null);
+        setEventEndDate(flashSaleActice.endDate || null);
+
+        const now = new Date();
+        const start = flashSaleActice.startDate
+          ? new Date(flashSaleActice.startDate)
+          : null;
+        const end = flashSaleActice.endDate
+          ? new Date(flashSaleActice.endDate)
+          : null;
+
+        // Xác định label và countdown time
+        if (start && now < start) {
+          setEventCountdownLabel("Bắt đầu sau:");
+          setEventCountdownTime(flashSaleActice.startDate);
+          eventActive = false;;
+        } else if (end && now < end) {
+          setEventCountdownLabel("Kết thúc sau:");
+          setEventCountdownTime(flashSaleActice.endDate);
+          eventActive = true;
+        } else {
+          setEventCountdownLabel("Kết thúc sau:");
+          setEventCountdownTime(flashSaleActice.endDate);
+          eventActive = false;
+        }
+      }
 
       // Chuẩn hóa danh sách sản phẩm về array
       const productList = Array.isArray(productsRes)
@@ -71,10 +109,11 @@ function Cart() {
 
         const effectiveDiscount = product
           ? isInFlashSale
-            ? Math.max(
+            ? eventActive ? Math.max(
                 product.percentDiscount || 0,
                 flashSaleActice.discountPercent,
               )
+              : product.percentDiscount || 0
             : product.percentDiscount || 0
           : 0;
 
@@ -86,6 +125,7 @@ function Cart() {
           image: product?.urlImages?.[0] || "",
           percentDiscount: effectiveDiscount,
           stock: product?.quantity || 0,
+          isInFlashSale,
         };
       });
 
@@ -384,21 +424,39 @@ function Cart() {
                     </td>
 
                     <td className={cx("col-price")}>
-                      <div className={cx("price-group")}>
-                        {item.percentDiscount > 0 && (
+                      {item.isInFlashSale && !isEventActive ? (
+                        <div className={cx("price-group")}>
                           <div className={cx("old-price-group")}>
                             <span className={cx("old-price")}>
                               {item.price.toLocaleString("vi-VN")} ₫
                             </span>
-                            <span className={cx("discount-tag")}>
-                              -{item.percentDiscount}%
-                            </span>
+                            {item.percentDiscount > 0 && (
+                              <span className={cx("discount-tag")}>
+                                -{item.percentDiscount}%
+                              </span>
+                            )}
                           </div>
-                        )}
-                        <span className={cx("sale-price")}>
-                          {salePrice.toLocaleString("vi-VN")} ₫
-                        </span>
-                      </div>
+                          <span className={cx("sale-price")}>
+                            {salePrice.toLocaleString("vi-VN")} ₫
+                          </span>
+                        </div>
+                      ) : (
+                        <div className={cx("price-group")}>
+                          {item.percentDiscount > 0 && (
+                            <div className={cx("old-price-group")}>
+                              <span className={cx("old-price")}>
+                                {item.price.toLocaleString("vi-VN")} ₫
+                              </span>
+                              <span className={cx("discount-tag")}>
+                                -{item.percentDiscount}%
+                              </span>
+                            </div>
+                          )}
+                          <span className={cx("sale-price")}>
+                            {salePrice.toLocaleString("vi-VN")} ₫
+                          </span>
+                        </div>
+                      )}
                     </td>
 
                     <td className={cx("col-qty")}>

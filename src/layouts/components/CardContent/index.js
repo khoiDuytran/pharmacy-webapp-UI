@@ -12,6 +12,7 @@ function CardContent({
   flashsale = false,
   title,
   products = [],
+  isFlashSaleUpcoming = false,
 }) {
   const listRef = useRef(null);
   const [filterType, setFilterType] = useState("most-bought"); // "search" | "most-bought" | "newest"
@@ -100,7 +101,7 @@ function CardContent({
       <div className={cx("container")}>
         <div className={cx("list")} ref={listRef}>
           {sortedProducts.map((item) => (
-            <ProductCard key={item.id} data={item} />
+            <ProductCard key={item.id} data={item} isFlashSaleUpcoming={isFlashSaleUpcoming} />
           ))}
         </div>
       </div>
