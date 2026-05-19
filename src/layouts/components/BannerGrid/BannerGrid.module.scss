@@ -1,0 +1,135 @@
+.banner-box {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background-color: #f8fff3;
+  padding: 60px 0;
+  display: flex;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    padding: 32px 16px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 480px;
+    padding: 25px 10px;
+  }
+}
+
+.grid-content {
+  width: var(--default-layout-width);
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
+}
+
+.grid-templait-on {
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+  gap: 40px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+.grid-item {
+  flex: 0 0 60%;
+
+  @media (max-width: 768px) {
+    flex: unset;
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 455px;
+  }
+}
+
+.grid-item-title {
+  color: #03524e;
+  text-align: left;
+  font-size: 2.9rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+}
+
+.grid-templait-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 0.6fr);
+    gap: 14px;
+  }
+}
+
+.grid-templait-grid1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.grid-icon img {
+  width: 100%;
+  height: auto;
+}
+
+.grid-box {
+}
+
+.grid-title1 {
+  color: #0b0f22;
+  font-size: 1.6rem;
+  line-height: 24px;
+  font-weight: 600;
+
+  @media (max-width: 768px) {
+    font-size: 1.4rem;
+  }
+}
+
+.grid-title2 {
+  color: #03524e;
+  font-size: 1.3rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
+}
+
+.grid-image {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    flex: unset;
+    width: 100%;
+  }
+}
+
+.grid-image img {
+  max-width: 360px;
+  height: auto;
+  object-fit: contain;
+
+  @media (max-width: 768px) {
+    max-width: 240px;
+  }
+}

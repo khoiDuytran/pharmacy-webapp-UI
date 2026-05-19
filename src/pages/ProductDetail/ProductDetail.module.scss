@@ -131,10 +131,16 @@
   flex: 1;
 }
 
-.price-group {
+.fs-price-group {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+
+  .price-group {
+    padding: 10px;
+    border-radius: 0 0 10px 10px;
+    background-color: #f0f0f0;
+  }
 }
 
 .hot-sale {
@@ -143,14 +149,13 @@
   align-items: center;
   background: #f58220;
   background: linear-gradient(90deg, #f58220 0%, #ffc364 100%);
-  padding: 7px;
+  padding: 10px;
   color: #fff;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  border-radius: 10px 10px 0 0;
 }
 
 .hot-sale-title {
-  font-size: 1.6rem;
+  font-size: 2rem;
   font-weight: 600;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -173,6 +178,12 @@
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.price-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .price-discount-tag {
@@ -224,7 +235,7 @@
 }
 
 .quantity-section {
-  margin: 24px 0 0;
+  margin: 10px 0;
 }
 
 .quantity-adjuster {

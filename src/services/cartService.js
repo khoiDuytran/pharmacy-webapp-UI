@@ -11,10 +11,22 @@ export const createCart = async () => {
   }
 };
 
-export const addProductToCart = async (id) => {
+export const addProductToCart = async (id, quantity) => {
   try {
     const res = await put(
-      `/shopping-cart/add-product-to-shopping-cart?productId=${id}`,
+      `/shopping-cart/add-product-to-shopping-cart?productId=${id}&quantity=${quantity}`,
+    );
+    return res;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const decreaseProductFormCart = async (id, quantity) => {
+  try {
+    const res = await put(
+      `/shopping-cart/decrease-product-from-shopping-cart?productId=${id}&quantity=${quantity}`,
     );
     return res;
   } catch (error) {
@@ -27,18 +39,6 @@ export const removeProductFromCart = async (id) => {
   try {
     const res = await put(
       `/shopping-cart/remove-product-from-shopping-cart?productId=${id}`,
-    );
-    return res;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
-export const decreaseProductFormCart = async (id) => {
-  try {
-    const res = await put(
-      `/shopping-cart/decrease-product-from-shopping-cart?productId=${id}`,
     );
     return res;
   } catch (error) {

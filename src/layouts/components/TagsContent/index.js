@@ -1,11 +1,5 @@
 import classNames from "classnames/bind";
-
 import styles from "./TagsContent.module.scss";
-// import CMT from "../../../assets/images/tag/icon-canmuathuoc.png";
-// import TV from "../../../assets/images/tag/icon-tuvan.png";
-// import DT from "../../../assets/images/tag/icon-donthuoc.png";
-// import DSH from "../../../assets/images/tag/icon-dealsieuhot.png";
-// import HTNT from "../../../assets/images/tag/icon-hethongnhathuoc.png";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,67 +9,82 @@ import {
   faHouseMedicalCircleCheck,
   faTags,
 } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
+import { getAllTags } from "../../../services/tagService";
 
 const cx = classNames.bind(styles);
 
-const TAG_ITEMS = [
-  {
+// Map type từ API → icon + action
+const TAG_CONFIG = {
+  openProductList: {
     icon: faCapsules,
     name: "Cần mua thuốc",
-    type: "link",
-    to: "/products",
+    action: (navigate) => navigate("/products"),
   },
-  {
+  openChatbot: {
     icon: faHeartPulse,
     name: "Tư vấn trực tuyến",
-    type: "chat",
+    action: () => window.dispatchEvent(new Event("open-chatbot")),
   },
-  {
+  openMyOrders: {
     icon: faBoxArchive,
-    name: "Đơn hàng của tôi",
-    type: "link",
-    to: "/profile/don-hang",
+    name: "Đơn của tôi",
+    action: (navigate) => navigate("/profile/don-hang"),
   },
-  {
+  openSuperDeal: {
     icon: faTags,
     name: "Deal siêu hot",
-    type: "link",
-    to: "/super-hot-deal",
+    action: (navigate) => navigate("/super-hot-deal"),
   },
-  {
+  openLocation: {
     icon: faHouseMedicalCircleCheck,
     name: "Tìm nhà thuốc",
-    type: "link",
-    to: "/location",
+    action: (navigate) => navigate("/location"),
   },
-];
+};
+
 function TagsContent() {
   const navigate = useNavigate();
+  const [tags, setTags] = useState([]);
 
-  const handleClick = (item) => {
-    if (item.type === "link") {
-      navigate(item.to);
-    }
+  useEffect(() => {
+    const getTags = async () => {
+      try {
+        const res = await getAllTags();
 
-    if (item.type === "chat") {
-      window.dispatchEvent(new Event("open-chatbot"));
-    }
-  };
+        if (!res?.success) return;
+        setTags(res.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy tags:", error);
+        setTags([]);
+      }
+    };
+    getTags();
+  }, []);
+
+  const visibleTags = tags
+    .filter((s) => s.enabled)
+    .sort((a, b) => a.order - b.order);
 
   return (
     <div className={cx("wrapper")}>
-      {TAG_ITEMS.map((item, index) => (
-        <div
-          key={index}
-          className={cx("tag")}
-          onClick={() => handleClick(item)}
-        >
-          <div className={cx("icon")}>
-            <FontAwesomeIcon icon={item.icon} />
+      {visibleTags.map((tag) => {
+        const config = TAG_CONFIG[tag.type];
+        if (!config) return null; // type không nhận dạng được → bỏ qua
+
+        return (
+          <div
+            key={tag.id}
+            className={cx("tag")}
+            onClick={() => config.action(navigate)}
+          >
+            <div className={cx("icon")}>
+              <FontAwesomeIcon icon={config.icon} />
+            </div>
+            <div className={cx("title")}>{tag.name}</div>
           </div>
-          <div className={cx("title")}>{item.name}</div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

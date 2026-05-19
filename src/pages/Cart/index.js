@@ -6,6 +6,8 @@ import {
   faAngleDown,
   faAngleRight,
   faAngleUp,
+  faCheck,
+  faEdit,
   faTrash,
   faTruckFast,
 } from "@fortawesome/free-solid-svg-icons";
@@ -32,6 +34,9 @@ function Cart() {
   const [isShow, setIsShow] = useState(false);
   const { toast } = useContext(ToastContext);
   const [loadingItemId, setLoadingItemId] = useState(null); // id đang thực hiện action
+  const [loadingAction, setLoadingAction] = useState(false); // "increase" | "decrease" | "delete"
+  const [editingId, setEditingId] = useState(null); // id đang edit
+  const [editQty, setEditQty] = useState({}); // { [id]: qty }
 
   const fetchCart = useCallback(async () => {
     try {
@@ -124,7 +129,7 @@ function Cart() {
   const handleIncrease = async (id) => {
     setLoadingItemId(id);
     try {
-      const res = await addProductToCart(id);
+      const res = await addProductToCart(id, 1);
       if (res?.success) await fetchCart();
     } catch (error) {
       console.error("Lỗi tăng số lượng:", error);
@@ -137,7 +142,7 @@ function Cart() {
   const handleDecrease = async (id) => {
     setLoadingItemId(id);
     try {
-      const res = await decreaseProductFormCart(id);
+      const res = await decreaseProductFormCart(id, 1);
       if (res?.success) await fetchCart();
     } catch (error) {
       console.error("Lỗi giảm số lượng:", error);
@@ -146,10 +151,65 @@ function Cart() {
     }
   };
 
+  // // Blur — reset về 1 nếu đang trống
+  // const handleQuantityBlur = (id) => {
+  //   const item = cartItems.find((i) => i.id === id);
+  //   if (!item || item.quantity === "") {
+  //     setCartItems((prev) =>
+  //       prev.map((i) => (i.id === id ? { ...i, quantity: 1 } : i)),
+  //     );
+  //     // Nếu server qty > 1 thì sync lại
+  //     fetchCart();
+  //   }
+  // };
+
+  const handleStartEdit = (id, currentQty) => {
+    setEditingId(id);
+    setEditQty((prev) => ({ ...prev, [id]: currentQty }));
+  };
+
+  const handleSubmitQuantity = async (id) => {
+    const item = cartItems.find((i) => i.id === id);
+    const oldQty = item?.quantity || 1;
+    const newQty = parseInt(editQty[id], 10);
+
+    // Validate
+    if (isNaN(newQty) || newQty < 1) {
+      setEditQty((prev) => ({ ...prev, [id]: oldQty })); // reset
+      setEditingId(null);
+      return;
+    }
+
+    const clampedQty = Math.min(newQty, item.stock);
+    const diff = clampedQty - oldQty;
+
+    if (diff === 0) {
+      setEditingId(null);
+      return;
+    } // không thay đổi
+
+    setLoadingItemId(id);
+    try {
+      if (diff > 0) {
+        await addProductToCart(id, diff);
+      } else {
+        await decreaseProductFormCart(id, Math.abs(diff));
+      }
+      await fetchCart();
+    } catch {
+      toast.error("Cập nhật số lượng thất bại");
+      await fetchCart(); // rollback
+    } finally {
+      setLoadingItemId(null);
+      setEditingId(null);
+    }
+  };
+
   // Xóa 1 sản phẩm
   const handleDeleteItem = async (id) => {
     setLoadingItemId(id);
     try {
+      setLoadingAction(true);
       const res = await removeProductFromCart(id);
       if (res?.success) {
         await fetchCart();
@@ -164,6 +224,7 @@ function Cart() {
       console.error("Lỗi xóa sản phẩm:", error);
     } finally {
       setLoadingItemId(null);
+      setLoadingAction(false);
     }
   };
 
@@ -172,6 +233,7 @@ function Cart() {
     console.log(selectedItems);
 
     try {
+      setLoadingAction(true);
       for (const id of selectedItems) {
         await removeProductFromCart(id);
       }
@@ -182,6 +244,8 @@ function Cart() {
     } catch (error) {
       toast.error("Có lỗi xảy ra, xóa sản phẩm thất bại");
       console.error("Lỗi xóa nhiều sản phẩm:", error);
+    } finally {
+      setLoadingAction(false);
     }
   };
 
@@ -279,6 +343,7 @@ function Cart() {
                       className={cx("delete-button")}
                       onClick={handleDeleteSelected}
                       title="Xóa các SP đã chọn"
+                      disabled={!!loadingAction}
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
@@ -341,17 +406,45 @@ function Cart() {
                         <button
                           onClick={() => handleDecrease(item.id)}
                           disabled={
-                            item.quantity <= 1 || loadingItemId === item.id
+                            item.quantity <= 1 ||
+                            loadingItemId === item.id ||
+                            editingId === item.id
                           }
                         >
                           −
                         </button>
-                        <input type="number" value={item.quantity} readOnly />
+
+                        {editingId === item.id ? (
+                          // Đang edit — input có thể gõ
+                          <input
+                            type="number"
+                            value={editQty[item.id] ?? item.quantity}
+                            onChange={(e) =>
+                              setEditQty((prev) => ({
+                                ...prev,
+                                [item.id]: e.target.value,
+                              }))
+                            }
+                            min={1}
+                            max={item.stock}
+                            autoFocus
+                            disabled={loadingItemId}
+                          />
+                        ) : (
+                          <input
+                            type="number"
+                            value={item.quantity}
+                            disabled
+                            readOnly
+                          />
+                        )}
+
                         <button
                           onClick={() => handleIncrease(item.id)}
                           disabled={
                             item.quantity >= item.stock ||
-                            loadingItemId === item.id
+                            loadingItemId === item.id ||
+                            editingId === item.id
                           }
                         >
                           +
@@ -366,10 +459,39 @@ function Cart() {
                     </td>
 
                     <td className={cx("col-action")}>
+                      {editingId === item.id ? (
+                        <button
+                          className={cx("edit-button")}
+                          onClick={() => handleSubmitQuantity(item.id)}
+                          title="Xác nhận"
+                          disabled={
+                            loadingItemId === item.id || !!loadingAction
+                          }
+                        >
+                          <FontAwesomeIcon icon={faCheck} />
+                        </button>
+                      ) : (
+                        <button
+                          className={cx("edit-button")}
+                          onClick={() =>
+                            handleStartEdit(item.id, item.quantity)
+                          }
+                          disabled={
+                            !!loadingAction || loadingItemId === item.id
+                          }
+                          title="Sửa số lượng"
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
+                      )}
                       <button
                         className={cx("delete-button")}
                         onClick={() => handleDeleteItem(item.id)}
-                        disabled={loadingItemId === item.id}
+                        disabled={
+                          !!loadingAction ||
+                          loadingItemId === item.id ||
+                          editingId === item.id
+                        }
                         title="Xóa"
                       >
                         <FontAwesomeIcon icon={faTrash} />

@@ -217,15 +217,41 @@ function ProductDetail() {
       .map((sentence, index) => <p key={index}>{sentence}</p>);
   };
 
+  // Bỏ handleFormatQuantity, sửa trực tiếp onChange
+  const handleQuantityInput = (e) => {
+    const raw = e.target.value;
+
+    // Cho phép trống tạm thời khi user đang xóa để gõ lại
+    if (raw === "") {
+      setPurchaseQuantity("");
+      return;
+    }
+
+    const parsed = parseInt(raw, 10);
+
+    // Không phải số hợp lệ → bỏ qua
+    if (isNaN(parsed)) return;
+
+    // Clamp trong khoảng [1, stock]
+    const clamped = Math.min(Math.max(parsed, 1), stock);
+    setPurchaseQuantity(clamped);
+  };
+
+  // Khi blur — nếu đang trống thì reset về 1
+  const handleQuantityBlur = () => {
+    if (purchaseQuantity === "" || purchaseQuantity < 1) {
+      setPurchaseQuantity(1);
+    }
+  };
+
   const emitCartUpdate = () => {
     window.dispatchEvent(new Event("cart-updated"));
   };
 
-  const handleAddToCart = async (id) => {
+  const handleAddToCart = async (id, quantity) => {
     try {
-      for (let i = 0; i < purchaseQuantity; i++) {
-        await addProductToCart(id);
-      }
+      const res = await addProductToCart(id, quantity);
+      if (!res.data) return;
       console.log("Đã thêm sản phẩm vào giỏ", id);
       toast.success("Đã thêm vào giỏ hàng");
       emitCartUpdate();
@@ -309,8 +335,9 @@ function ProductDetail() {
               <p className={cx("product-available")}>
                 Số lượng có sẵn: {stock}
               </p>
-              <div className={cx("price-group")}>
-                {isFSItem && (
+
+              {isFSItem ? (
+                <div className={cx("fs-price-group")}>
                   <div className={cx("hot-sale")}>
                     <div className={cx("hot-sale-left")}>
                       <div className={cx("hot-sale-title")}>FLASH SALE</div>
@@ -323,27 +350,56 @@ function ProductDetail() {
                       <CountDown small endDate={endDate} />
                     </div>
                   </div>
-                )}
-                <div className={cx("price-discount-tag")}>
-                  <div
-                    className={cx("old-price")}
-                    style={{ visibility: hasDiscount ? "visible" : "hidden" }}
-                  >
-                    {productDetail?.price.toLocaleString("vi-VN")} ₫
-                  </div>
-                  {hasDiscount && (
-                    <div className={cx("discount-tag")}>
-                      -
-                      {productDetail._effectiveDiscount ??
-                        productDetail.percentDiscount}
-                      %
+
+                  <div className={cx("price-group")}>
+                    <div className={cx("price-discount-tag")}>
+                      <div
+                        className={cx("old-price")}
+                        style={{
+                          visibility: hasDiscount ? "visible" : "hidden",
+                        }}
+                      >
+                        {productDetail?.price.toLocaleString("vi-VN")} ₫
+                      </div>
+                      {hasDiscount && (
+                        <div className={cx("discount-tag")}>
+                          -
+                          {productDetail._effectiveDiscount ??
+                            productDetail.percentDiscount}
+                          %
+                        </div>
+                      )}
                     </div>
-                  )}
+                    <div className={cx("product-price")}>
+                      {discountedPrice.toLocaleString("vi-VN")} ₫
+                    </div>
+                  </div>
                 </div>
-                <div className={cx("product-price")}>
-                  {discountedPrice.toLocaleString("vi-VN")} ₫
+              ) : (
+                <div className={cx("price-group")}>
+                  <div className={cx("price-discount-tag")}>
+                    <div
+                      className={cx("old-price")}
+                      style={{ visibility: hasDiscount ? "visible" : "hidden" }}
+                    >
+                      {productDetail?.price.toLocaleString("vi-VN")} ₫
+                    </div>
+                    {hasDiscount && (
+                      <div className={cx("discount-tag")}>
+                        -
+                        {productDetail._effectiveDiscount ??
+                          productDetail.percentDiscount}
+                        %
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={cx("product-price")}>
+                    {discountedPrice.toLocaleString("vi-VN")} ₫
+                  </div>
                 </div>
-              </div>
+              )}
+
               {status ? (
                 <div className={cx("quantity-section")}>
                   <div className={cx("quantity-adjuster")}>
@@ -358,7 +414,10 @@ function ProductDetail() {
                       type="number"
                       className={cx("quantity-input")}
                       value={purchaseQuantity}
-                      readOnly
+                      onChange={handleQuantityInput}
+                      onBlur={handleQuantityBlur}
+                      min={1}
+                      max={stock}
                     />
                     <button
                       className={cx("quantity-btn", "increase")}
@@ -375,7 +434,12 @@ function ProductDetail() {
                   <Button
                     medium
                     className={cx("action-btn")}
-                    onClick={() => handleAddToCart(productDetail?.id)}
+                    onClick={() =>
+                      handleAddToCart(
+                        productDetail?.id,
+                        Number(purchaseQuantity) || 1,
+                      )
+                    }
                   >
                     THÊM VÀO GIỎ HÀNG
                   </Button>

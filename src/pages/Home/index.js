@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import classNames from "classnames/bind";
 
 import CardContent from "../../layouts/components/CardContent";
@@ -12,37 +12,13 @@ import mobileBanner from "../../assets/images/mobile-banner.png";
 import HeroBanner from "../../layouts/components/HeroBanner";
 import Event from "../../layouts/components/Event";
 import TagsContent from "../../layouts/components/TagsContent";
+import { getAllEvent } from "../../services/eventService";
+import BannerGrid from "../../layouts/components/BannerGrid";
+import { getAllSections } from "../../services/sectionService";
 
 const cx = classNames.bind(styles);
 
 const HeroImages = [webBanner, webBanner2];
-
-const bannerImages = [
-  {
-    image:
-      "https://theme.hstatic.net/200000851307/1001229135/14/showinfobnnthongtinicon1.png?v=1168",
-    title1: "Cam kết",
-    title2: "Thuốc chính hãng",
-  },
-  {
-    image:
-      "https://theme.hstatic.net/200000851307/1001229135/14/showinfobnnthongtinicon2.png?v=1168",
-    title1: "Thanh toán tiện lợi",
-    title2: "Hỗ trợ nhiều phương thức",
-  },
-  {
-    image:
-      "https://theme.hstatic.net/200000851307/1001229135/14/showinfobnnthongtinicon3.png?v=1168",
-    title1: "Miễn phí giao hàng",
-    title2: "Đơn hàng từ 0 đồng",
-  },
-  {
-    image:
-      "https://theme.hstatic.net/200000851307/1001229135/14/showinfobnnthongtinicon4.png?v=1168",
-    title1: "Đổi trả",
-    title2: "trong vòng 3 ngày",
-  },
-];
 
 const blogs = [
   {
@@ -78,7 +54,10 @@ const blogs = [
 function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [eventTime, setEventTime] = useState(null);
+  const [eventProducts, setEventProducts] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [sections, setSections] = useState([]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -87,20 +66,98 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const getAllProducts = async () => {
+    const getSections = async () => {
       try {
-        const res = await getProduct();
-        if (!res) return;
-        setProducts(res.data);
+        const res = await getAllSections();
+
+        console.log(res);
+
+        if (!res?.success) return;
+        setSections(res.data);
       } catch (error) {
         console.error(error);
-      } finally {
-        setLoading(false);
+        setSections([]);
       }
     };
-
-    getAllProducts();
+    getSections();
   }, []);
+
+  const visibleSections = sections
+    .filter((s) => s.enabled)
+    .sort((a, b) => a.order - b.order);
+
+  // useEffect(() => {
+  //   const getAllProducts = async () => {
+  //     try {
+  //       const res = await getProduct();
+  //       if (!res) return;
+  //       setProducts(res.data);
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   getAllProducts();
+  // }, []);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      const [productRes, eventsRes] = await Promise.all([
+        getProduct(),
+        getAllEvent(),
+      ]);
+
+      if (!productRes?.success || !productRes?.data?.length) {
+        return setProducts([]);
+      }
+
+      const AllProducts = Array.isArray(productRes)
+        ? productRes
+        : Array.isArray(productRes.data)
+          ? productRes.data
+          : [];
+      const AllEvents = Array.isArray(eventsRes) ? eventsRes : [];
+      const EventActive = AllEvents.filter((e) => e.active);
+
+      if (EventActive.length === 0) return null;
+
+      const activeEvent = EventActive[0];
+
+      setEventTime(activeEvent.endDate);
+
+      // Lấy sản phẩm trong event, override percentDiscount bằng discountPercent của event
+      const eventProducts = (activeEvent?.productIds || [])
+        .map((id) => {
+          const product = AllProducts.find((p) => (p._id || p.id) === id);
+          if (!product) return null;
+          return {
+            ...product,
+            percentDiscount:
+              activeEvent.discountPercent || product.percentDiscount,
+          };
+        })
+        .filter(Boolean);
+
+      setEventProducts([...eventProducts]);
+
+      const listProducts = AllProducts.filter(
+        (p) =>
+          !eventProducts.some((ep) => (ep._id || ep.id) === (p._id || p.id)),
+      );
+
+      setProducts([...listProducts]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const discountProduct = products
     ? products.sort((p, q) => q.percentDiscount - p.percentDiscount).slice(0, 8)
@@ -108,6 +165,85 @@ function Home() {
   const otherProduct = products
     ? products.filter((p) => p.purchaseCount < 11).slice(8)
     : [];
+
+  const renderSection = (section) => {
+    switch (section.type) {
+      case "tags":
+        return (
+          <section className={cx("section")}>
+            <TagsContent />
+          </section>
+        );
+
+      case "discount":
+        return (
+          <section className={cx("section")}>
+            {loading ? (
+              <Loading />
+            ) : (
+              <CardContent
+                column
+                title={section.title}
+                products={discountProduct}
+              />
+            )}
+          </section>
+        );
+
+      case "event":
+        return (
+          <section className={cx("section")}>
+            {loading ? (
+              <Loading />
+            ) : (
+              <Event
+                eventProducts={eventProducts || []}
+                activeTime={eventTime || null}
+              />
+            )}
+          </section>
+        );
+
+      case "other":
+        return (
+          <section className={cx("section")}>
+            {loading ? (
+              <Loading />
+            ) : (
+              <CardContent
+                slide
+                title={section.title}
+                products={otherProduct}
+              />
+            )}
+          </section>
+        );
+
+      case "topSeller":
+        return (
+          <section className={cx("section")}>
+            {loading ? (
+              <Loading />
+            ) : (
+              <CardContent
+                topseller
+                title={section.title}
+                products={products}
+              />
+            )}
+          </section>
+        );
+
+      case "bannerGrid":
+        return <BannerGrid />;
+
+      case "blog":
+        return <BlogContent title={"Bài viết nổi bật"} blogs={blogs} />;
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className={cx("wrapper")}>
@@ -137,12 +273,19 @@ function Home() {
 
       <div className={cx("container")}>
         <div className={cx("content")}>
-          <section className={cx("section")}>
+          {/* <section className={cx("section")}>
             <TagsContent />
           </section>
 
           <section className={cx("section")}>
-            {loading ? <Loading /> : <Event products={products} />}
+            {loading ? (
+              <Loading />
+            ) : (
+              <Event
+                eventProducts={eventProducts || []}
+                activeTime={eventTime || null}
+              />
+            )}
           </section>
 
           <section className={cx("section")}>
@@ -157,47 +300,7 @@ function Home() {
             )}
           </section>
 
-          <div className={cx("banner-box")}>
-            <div className={cx("grid-content")}>
-              <div className={cx("grid-templait-on")}>
-                <div className={cx("grid-item")}>
-                  <div className={cx("grid-item-text")}>
-                    <h2 className={cx("grid-item-title")}>
-                      Cùng Nhà thuốc PharHealth bảo vệ sức khỏe của bạn
-                    </h2>
-                    <div className={cx("grid-templait-grid")}>
-                      {bannerImages.map((item, index) => {
-                        return (
-                          <div
-                            className={cx("grid-templait-grid1")}
-                            key={index}
-                          >
-                            <div className={cx("grid-icon")}>
-                              <img src={item.image} alt={item.title1} />
-                            </div>
-                            <div className={cx("grid-box")}>
-                              <div className={cx("grid-title1")}>
-                                {item.title1}
-                              </div>
-                              <div className={cx("grid-title2")}>
-                                {item.title2}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-                <div className={cx("grid-image")}>
-                  <img
-                    src="//theme.hstatic.net/200000851307/1001229135/14/tinvabannerimage.png?v=1168"
-                    alt="Cùng Nhà thuốc Pharceco bảo vệ sức khỏe của bạn"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <BannerGrid />
 
           <section className={cx("section")}>
             {loading ? (
@@ -221,7 +324,10 @@ function Home() {
                 products={otherProduct}
               />
             )}
-          </section>
+          </section> */}
+          {visibleSections.map((section) => (
+            <div key={section.id}>{renderSection(section)}</div>
+          ))}
         </div>
       </div>
 

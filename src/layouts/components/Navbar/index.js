@@ -8,6 +8,7 @@ import {
   faTimes,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
+import Cookies from "js-cookie";
 
 import styles from "./Navbar.module.scss";
 import { getAllCategories } from "../../../services/categoryService";
@@ -33,11 +34,13 @@ function Navbar({ mobileMenuOpen, onMenuClose }) {
   }, []);
 
   useEffect(() => {
-    setCurrentUser(!!localStorage.getItem("token"));
+    setCurrentUser(!!Cookies.get("token"));
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    Cookies.remove("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("chat_session_id");
     onMenuClose();
     window.location.reload();
   };
@@ -88,8 +91,11 @@ function Navbar({ mobileMenuOpen, onMenuClose }) {
                 className={cx("user-link")}
                 onClick={onMenuClose}
               >
-                <FontAwesomeIcon icon={faUser} />
-                <span>Tài khoản</span>
+                <div className={cx("username-img")}>
+                  {localStorage.getItem("username")?.charAt(0).toUpperCase() ||
+                    "U"}
+                </div>
+                {localStorage.getItem("username") || "Tài khoản"}
               </Link>
               <button className={cx("logout-btn")} onClick={handleLogout}>
                 <FontAwesomeIcon icon={faArrowRightFromBracket} />

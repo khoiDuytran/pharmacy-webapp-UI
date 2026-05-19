@@ -9,6 +9,8 @@ import { getCart, createCart } from "../../services/cartService";
 import Loading from "../../components/Loading";
 import { ToastContext } from "../../contexts/ToastProvider";
 import useDebounce from "../../hooks/useDebounce";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const cx = classNames.bind(styles);
 
@@ -25,6 +27,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { toast } = useContext(ToastContext);
+  const [showPassword, setShowPassword] = useState(false);
 
   const debouncedUsername = useDebounce(form.username, 600);
 
@@ -167,7 +170,7 @@ function Login() {
               <label className={cx("label")}>Mật khẩu</label>
               <div className={cx("input-wrapper")}>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   className={cx("input")}
                   placeholder="Nhập mật khẩu"
@@ -175,6 +178,20 @@ function Login() {
                   onChange={handleChange}
                   disabled={isLoading}
                 />
+                {form.password && (
+                  <button
+                    type="button"
+                    className={cx("show-password")}
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                  >
+                    {showPassword ? (
+                      <FontAwesomeIcon icon={faEyeSlash} />
+                    ) : (
+                      <FontAwesomeIcon icon={faEye} />
+                    )}
+                  </button>
+                )}
               </div>
             </div>
 

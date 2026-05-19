@@ -269,11 +269,33 @@
   color: #e53935;
 }
 
+.edit-button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  color: #066e28;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #d7f7e4;
+  }
+
+  &:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background-color: transparent;
+  }
+}
+
 .delete-button {
   width: 36px;
   height: 36px;
   border: none;
-  background: #f5f5f5;
+  background: transparent;
   cursor: pointer;
   font-size: 16px;
   color: #dc3545;
@@ -282,6 +304,12 @@
 
   &:hover {
     background-color: #ffe5e5;
+  }
+
+  &:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background-color: transparent;
   }
 }
 

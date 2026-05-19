@@ -95,21 +95,23 @@ function SuperHotDeal() {
         {"DEAL SIÊU HOT"}
       </div>
       <div className={cx("content")}>
-        <div className={cx("products-header")}>
-          <img
-            src={headerImage}
-            alt="Super Hot Deal"
-            className={cx("products-header-image")}
-          />
-        </div>
         {loading ? (
           <Loading />
         ) : (
-          <div className={cx("products-grids")}>
-            <div className={cx("products-grid")}>
-              <CardContent column products={products} />
+          <>
+            <div className={cx("products-header")}>
+              <img
+                src={headerImage}
+                alt="Super Hot Deal"
+                className={cx("products-header-image")}
+              />
             </div>
-          </div>
+            <div className={cx("products-grids")}>
+              <div className={cx("products-grid")}>
+                <CardContent column products={products} />
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>
