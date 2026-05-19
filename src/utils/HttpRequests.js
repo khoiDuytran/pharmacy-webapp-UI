@@ -2,8 +2,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const HttpRequest = axios.create({
-  baseURL: "http://localhost:8080/api",
-  // baseURL: "https://pharmacy-webapp-backend-uz5m.onrender.com/api",
+  // baseURL: "http://localhost:8080/api",
+  baseURL: "https://pharmacy-webapp-backend-nh7b.onrender.com/v3/api-docs",
   headers: {
     "Content-Type": "application/json",
   },
