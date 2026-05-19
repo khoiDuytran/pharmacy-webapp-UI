@@ -35,8 +35,8 @@ function ProductDetail() {
   const [isFSItem, setIsFSItem] = useState(false);
   // const [isFSActive, setIsFSActive] = useState(true);
   // const [isFSUpcoming, setIsFSUpcoming] = useState(false);
-  const [endDate, setEndDate] = useState();
-  const [startDate, setStartDate] = useState();
+  // const [endDate, setEndDate] = useState();
+  // const [startDate, setStartDate] = useState();
   const [countdownLabel, setCountdownLabel] = useState("Hết sau:");
   const [countdownTime, setCountdownTime] = useState();
   // const [isEventActive, setIsEventActive] = useState(true);
@@ -132,8 +132,8 @@ function ProductDetail() {
 
         setProductDetail(productData);
         setIsFSItem(isInFlashSale);
-        setEndDate(flashSaleActice?.endDate);
-        setStartDate(flashSaleActice?.startDate || null);
+        // setEndDate(flashSaleActice?.endDate);
+        // setStartDate(flashSaleActice?.startDate || null);
         setSelectedImageIndex(0);
         setPurchaseQuantity(1);
 

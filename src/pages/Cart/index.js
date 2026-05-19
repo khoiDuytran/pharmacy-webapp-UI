@@ -24,7 +24,6 @@ import { getProduct } from "../../services/productService";
 import Loading from "../../components/Loading";
 import { ToastContext } from "../../contexts/ToastProvider";
 import { getAllEvent } from "../../services/eventService";
-import CountDown from "../../components/CountDown";
 
 const cx = classNames.bind(styles);
 
@@ -38,12 +37,7 @@ function Cart() {
   const [loadingAction, setLoadingAction] = useState(false); // "increase" | "decrease" | "delete"
   const [editingId, setEditingId] = useState(null); // id đang edit
   const [editQty, setEditQty] = useState({}); // { [id]: qty }
-  const [eventStartDate, setEventStartDate] = useState(null);
-  const [eventEndDate, setEventEndDate] = useState(null);
-  const [eventCountdownLabel, setEventCountdownLabel] =
-    useState("Kết thúc sau:");
-  const [eventCountdownTime, setEventCountdownTime] = useState(null);
-  const [isEventActive, setIsEventActive] = useState(true);
+  const isEventActive = true;
 
   const fetchCart = useCallback(async () => {
     try {
@@ -64,9 +58,6 @@ function Cart() {
 
       // Cập nhật thông tin event timing
       if (flashSaleActice) {
-        setEventStartDate(flashSaleActice.startDate || null);
-        setEventEndDate(flashSaleActice.endDate || null);
-
         const now = new Date();
         const start = flashSaleActice.startDate
           ? new Date(flashSaleActice.startDate)
@@ -77,16 +68,10 @@ function Cart() {
 
         // Xác định label và countdown time
         if (start && now < start) {
-          setEventCountdownLabel("Bắt đầu sau:");
-          setEventCountdownTime(flashSaleActice.startDate);
           eventActive = false;;
         } else if (end && now < end) {
-          setEventCountdownLabel("Kết thúc sau:");
-          setEventCountdownTime(flashSaleActice.endDate);
           eventActive = true;
         } else {
-          setEventCountdownLabel("Kết thúc sau:");
-          setEventCountdownTime(flashSaleActice.endDate);
           eventActive = false;
         }
       }
