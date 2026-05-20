@@ -598,7 +598,7 @@ function Cart() {
               </button>
             </div>
           </div>
-          <Link to={"/payment"}>
+          <Link to="/payment" state={{ isBuyNow: false }}>
             <button
               className={cx("checkout-button")}
               disabled={selectedItems.size === 0}

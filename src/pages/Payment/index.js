@@ -1,12 +1,12 @@
 import { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames/bind";
 
 import styles from "./Payment.module.scss";
 import { getAllShippingAddresses } from "../../services/userService";
-import { buyNow } from "../../services/paymentService";
+import { buyNow, checkOut } from "../../services/paymentService";
 import cash from "../../assets/images/paymentMethod/cash.png";
 import vnpay from "../../assets/images/paymentMethod/vnpay.jpg";
 import { ToastContext } from "../../contexts/ToastProvider";
@@ -62,6 +62,8 @@ const VALIDATORS = {
 
 function Payment() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isBuyNow = location.state?.isBuyNow || false;
   const selectedProducts =
     JSON.parse(localStorage.getItem("selectedProducts")) || [];
 
@@ -177,9 +179,9 @@ function Payment() {
   const total = subtotal + shippingFee;
 
   // Đặt hàng
-  const handleOrder = async () => {
+  const handleCheckOut = async () => {
     if (!selectedAddress) {
-      alert("Vui lòng chọn địa chỉ giao hàng.");
+      toast.warning("Vui lòng chọn địa chỉ giao hàng.");
       return;
     }
     setIsSubmitting(true);
@@ -197,7 +199,7 @@ function Payment() {
         note: note.trim(),
       };
 
-      const res = await buyNow(payload);
+      const res = await checkOut(payload);
       window.dispatchEvent(new Event("cart-updated"));
       if (paymentMethod === 2 && res?.paymentUrl) {
         sessionStorage.setItem("billId", res.billId);
@@ -211,7 +213,46 @@ function Payment() {
       }
     } catch (e) {
       console.error("Order failed", e);
-      alert("Đặt hàng thất bại, vui lòng thử lại.");
+      toast.error("Đặt hàng thất bại, vui lòng thử lại.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!selectedAddress) {
+      toast.warning("Vui lòng chọn địa chỉ giao hàng.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      // const products: { [productId]: quantity }
+      const products = {};
+      selectedProducts.forEach((p) => {
+        products[p.id] = p.quantity;
+      });
+
+      const payload = {
+        products,
+        shippingAddressId: selectedAddress.id,
+        paymentMethod, // 1 = COD, 2 = VNPay
+        note: note.trim(),
+      };
+
+      const res = await buyNow(payload);
+      if (paymentMethod === 2 && res?.paymentUrl) {
+        sessionStorage.setItem("billId", res.billId);
+        window.location.href = res.paymentUrl;
+      } else if (paymentMethod === 1) {
+        localStorage.removeItem("selectedProducts");
+        navigate("/payment/result", { state: { data: res, paymentMethod } });
+      } else {
+        localStorage.removeItem("selectedProducts");
+        navigate("/");
+      }
+    } catch (e) {
+      console.error("Order failed", e);
+      toast.error("Đặt hàng thất bại, vui lòng thử lại.");
     } finally {
       setIsSubmitting(false);
     }
@@ -406,7 +447,7 @@ function Payment() {
           <div className={cx("order-action")}>
             <button
               className={cx("btn-order")}
-              onClick={handleOrder}
+              onClick={isBuyNow ? handleBuyNow : handleCheckOut}
               disabled={isSubmitting || selectedProducts.length === 0}
             >
               {isSubmitting ? "Đang xử lý..." : "Đặt hàng"}

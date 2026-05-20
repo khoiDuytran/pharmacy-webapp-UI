@@ -124,10 +124,12 @@ function ProductDetail() {
         }
 
         const effectiveDiscount = isInFlashSale
-          ? eventActive ? Math.max(
-            productData.percentDiscount || 0,
-            flashSaleActice.discountPercent,
-          ) : productData.percentDiscount || 0
+          ? eventActive
+            ? Math.max(
+                productData.percentDiscount || 0,
+                flashSaleActice.discountPercent,
+              )
+            : productData.percentDiscount || 0
           : productData.percentDiscount || 0;
 
         setProductDetail(productData);
@@ -175,9 +177,7 @@ function ProductDetail() {
 
         const res = [...list];
 
-        const filtered = res.filter(
-          (item) => !eventProducts.includes(item.id),
-        );
+        const filtered = res.filter((item) => !eventProducts.includes(item.id));
 
         const products = filtered.filter(
           (item) => item.id !== productDetail.id,
@@ -188,7 +188,6 @@ function ProductDetail() {
           .sort((a, b) => a.sort - b.sort)
           .map(({ item }) => item)
           .slice(0, 5);
-
 
         setOtherProducts(shuffled);
       } catch (error) {
@@ -324,7 +323,7 @@ function ProductDetail() {
     };
 
     localStorage.setItem("selectedProducts", JSON.stringify([product]));
-    navigate("/payment");
+    navigate("/payment", { state: { isBuyNow: true } });
   };
 
   return (
@@ -394,7 +393,9 @@ function ProductDetail() {
                       <div className={cx("hot-sale-icon")}>
                         <img src={hotIcon} alt="hot-sale" />
                       </div>
-                      <div className={cx("hot-sale-title")}>FLASH SALE {countdownLabel}</div>
+                      <div className={cx("hot-sale-title")}>
+                        FLASH SALE {countdownLabel}
+                      </div>
                     </div>
                     <div className={cx("hot-sale-right")}>
                       {/* <div className={cx("countdown-label")}>
