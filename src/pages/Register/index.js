@@ -191,7 +191,7 @@ function Register() {
                 <span className={cx("checkmark")} />
               </label>
               <p className={cx("terms-text")}>
-                Tôi đồng ý với{" "}
+                {/* Tôi đồng ý với{" "}
                 <Link to="/profile" className={cx("link")}>
                   Các điều khoản
                 </Link>
@@ -199,7 +199,9 @@ function Register() {
                 <Link to="/profile" className={cx("link")}>
                   Chính sách Bảo vệ thông tin cá nhân
                 </Link>{" "}
-                và nhận thông tin quảng cáo, chăm sóc khách hàng
+                và nhận thông tin quảng cáo, chăm sóc khách hàng */}
+                Tôi đồng ý với các điều khoản và chính sách của chúng tôi, và
+                nhận thông tin quảng cáo, chăm sóc khách hàng.
               </p>
             </div>
 
